@@ -1,4 +1,5 @@
 import http from 'http'
+import 'dotenv/config'
 import app from './app.js'
 
 const normalizePort = (val) => {
@@ -13,6 +14,7 @@ const normalizePort = (val) => {
   return false
 }
 const port = normalizePort(process.env.PORT || '3000')
+console.log(process.env.PORT)
 app.set('port', port)
 
 const errorHandler = (error) => {
