@@ -1,4 +1,5 @@
 import express from 'express'
+import mongoose from 'mongoose'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import docsRoutes from './routes/docs.js'
@@ -8,6 +9,11 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const app = express()
+
+mongoose
+  .connect('mongodb://localhost:27017/test')
+  .then(() => console.log('Connexion to mongodb database success'))
+  .catch(() => console.log('Connexion failed'))
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
