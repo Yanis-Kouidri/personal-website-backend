@@ -2,6 +2,7 @@ import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import docsRoutes from './routes/docs.js'
+import authRoutes from './routes/auth.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -22,6 +23,7 @@ app.use((req, res, next) => {
 })
 
 app.use('/api/docs', docsRoutes)
+app.use('/api/auth', authRoutes)
 
 app.use('/data/docs', express.static(path.join(__dirname, '../data/docs')))
 
