@@ -4,5 +4,6 @@ import * as authCtrl from '../controllers/auth.js'
 const router = express.Router()
 
 router.post('/login', authCtrl.login)
+router.post('/signup', authCtrl.signup)
 
 export default router
