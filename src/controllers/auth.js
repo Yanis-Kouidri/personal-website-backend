@@ -2,28 +2,56 @@ import 'dotenv/config'
 import bcrypt from 'bcrypt'
 import User from '../models/user.js'
 
+const validateSignupInputs = (body) => {
+  const { username, password, signupKey } = body
+  if (!username || !password || !signupKey) {
+    return 'All fields are required: username, password, and signupKey'
+  }
+  if (password.length < 8) {
+    return 'Password must be at least 8 characters long'
+  }
+  return null
+}
+
 export const login = (req, res) => {
   return res.status(200).json({ message: 'Login Test OK' })
 }
 
-export const signup = (req, res) => {
-  const signupKey = process.env.SIGN_UP_KEY
+export const signup = async (req, res) => {
+  try {
+    const errorMessage = 'Unauthorized sign-up'
+    const signupKey = process.env.SIGN_UP_KEY
 
-  const errorMessage = 'Unautorized sign-up'
-  if (req.body.signupKey != signupKey) {
-    return res.status(401).json({ message: errorMessage })
-  }
-  bcrypt
-    .hash(req.body.password, 10)
-    .then((hash) => {
-      const user = new User({
-        username: req.body.username,
-        password: hash,
-      })
-      user
-        .save()
-        .then(() => res.status(200).json({ message: 'Utilisateur créé' }))
-        .catch((e) => res.status(401).json({ message: errorMessage + e })) // Remove e, only for debugging
+    // Fields validation
+    const validationError = validateSignupInputs(req.body)
+    if (validationError) {
+      return res.status(400).json({ message: validationError })
+    }
+
+    // Check sign-up key
+    if (req.body.signupKey !== signupKey) {
+      console.log('Wrong sign-up key')
+      return res.status(401).json({ message: errorMessage })
+    }
+
+    // Check is user already exist
+    const userExist = await User.findOne({ username: req.body.username })
+    if (userExist) {
+      console.log('User already exists: ' + userExist)
+      return res.status(401).json({ message: errorMessage })
+    }
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10)
+
+    const user = new User({
+      username: req.body.username,
+      password: hashedPassword,
     })
-    .catch((error) => res.status(500).json({ message: error }))
+    await user.save()
+
+    return res.status(201).json({ message: 'User successfully created' })
+  } catch (error) {
+    console.error('Error in signup:', error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
 }
