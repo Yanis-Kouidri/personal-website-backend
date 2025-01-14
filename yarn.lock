@@ -362,6 +362,7 @@ __metadata:
     dotenv: "npm:^16.4.7"
     eslint: "npm:^9.13.0"
     express: "npm:^4.21.1"
+    express-rate-limit: "npm:^7.5.0"
     globals: "npm:^15.11.0"
     mongoose: "npm:^8.9.3"
     prettier: "npm:^3.3.3"
@@ -902,6 +903,15 @@ __metadata:
   version: 3.1.1
   resolution: "exponential-backoff@npm:3.1.1"
   checksum: 10c0/160456d2d647e6019640bd07111634d8c353038d9fa40176afb7cd49b0548bdae83b56d05e907c2cce2300b81cae35d800ef92fefb9d0208e190fa3b7d6bb579
+  languageName: node
+  linkType: hard
+
+"express-rate-limit@npm:^7.5.0":
+  version: 7.5.0
+  resolution: "express-rate-limit@npm:7.5.0"
+  peerDependencies:
+    express: ^4.11 || 5 || ^5.0.0-beta.1
+  checksum: 10c0/3e96afa05b4f577395688ede37e0cb19901f20c350b32575fb076f3d25176209fb88d3648151755c232aaf304147c58531f070757978f376e2f08326449299fd
   languageName: node
   linkType: hard
 
