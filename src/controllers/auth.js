@@ -1,6 +1,9 @@
 import 'dotenv/config'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 import User from '../models/user.js'
+
+const JWT_SECRET = process.env.JWT_SECRET
 
 const validateSignupInputs = (body) => {
   const { username, password, signupKey } = body
@@ -14,7 +17,34 @@ const validateSignupInputs = (body) => {
 }
 
 export const login = (req, res) => {
-  return res.status(200).json({ message: 'Login Test OK' })
+  const errorMessage = 'Invalid credentials'
+  const { username, password } = req.body
+
+  User.findOne({ username })
+    .then((user) => {
+      if (!user) {
+        return res.status(401).json({ message: errorMessage })
+      }
+      bcrypt.compare(password, user.password).then((isMatch) => {
+        if (!isMatch) {
+          return res.status(401).json({ message: errorMessage })
+        }
+        const token = jwt.sign({ id: user._id }, JWT_SECRET, {
+          expiresIn: '24h',
+        })
+        res.cookie('token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'prod', // HTTPS only in prod
+          sameSite: 'Strict',
+          maxAge: 3600000, // 1h
+        })
+        return res.status(200).json({ message: 'Log-in successful' })
+      })
+    })
+    .catch((error) => {
+      console.err(error)
+      return res.status(500).json({ message: 'Internal server error' })
+    })
 }
 
 export const signup = async (req, res) => {
