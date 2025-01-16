@@ -29,9 +29,13 @@ export const login = (req, res) => {
         if (!isMatch) {
           return res.status(401).json({ message: errorMessage })
         }
-        const token = jwt.sign({ id: user._id }, JWT_SECRET, {
-          expiresIn: '24h',
-        })
+        const token = jwt.sign(
+          { id: user._id, username: username },
+          JWT_SECRET,
+          {
+            expiresIn: '24h',
+          }
+        )
         res.cookie('token', token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'prod', // HTTPS only in prod
@@ -42,7 +46,7 @@ export const login = (req, res) => {
       })
     })
     .catch((error) => {
-      console.err(error)
+      console.err("Login error: " + error)
       return res.status(500).json({ message: 'Internal server error' })
     })
 }
@@ -84,4 +88,8 @@ export const signup = async (req, res) => {
     console.error('Error in signup:', error)
     return res.status(500).json({ message: 'Internal server error' })
   }
+}
+
+export const me = (req, res) => {
+  return res.status(200).json({ user: req.tokenData.username })
 }

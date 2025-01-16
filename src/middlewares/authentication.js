@@ -3,7 +3,6 @@ import jws from 'jsonwebtoken'
 const JWT_SECRET = process.env.JWT_SECRET
 
 function authentication(req, res, next) {
-  console.log(req.cookies.token)
   const token = req.cookies.token
   if (!token) {
     return res
@@ -12,8 +11,8 @@ function authentication(req, res, next) {
   }
 
   try {
-    const userId = jws.verify(token, JWT_SECRET)
-    req.userId = userId
+    const tokenData = jws.verify(token, JWT_SECRET)
+    req.tokenData = tokenData
     next()
   } catch (error) {
     return res.status(401).json({ message: error })

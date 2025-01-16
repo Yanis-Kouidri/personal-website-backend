@@ -1,11 +1,15 @@
 import rateLimit from 'express-rate-limit'
 
-const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // Period of 15 minutes
-    max: 5, // max try
+function rateLimiter(max, minutes) {
+  return rateLimit({
+    windowMs: minutes * 60 * 1000, // Period of X minutes
+    max: max, // max try
     message: 'Too many failures',
     standardHeaders: true,
     legacyHeaders: false,
-})
+  })
+}
 
-export default loginLimiter
+export const loginLimiter = rateLimiter(5, 10)
+export const tokenVerifLimiter = rateLimiter(30, 1)
+
