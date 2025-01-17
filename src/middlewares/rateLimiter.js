@@ -12,4 +12,3 @@ function rateLimiter(max, minutes) {
 
 export const loginLimiter = rateLimiter(5, 10)
 export const tokenVerifLimiter = rateLimiter(30, 1)
-

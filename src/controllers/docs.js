@@ -20,5 +20,12 @@ export const getAllDocs = (req, res) => {
 }
 
 export const addOneDoc = (req, res) => {
-  res.json({ message: 'Vous voulez ajouter une doc' })
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file attached' })
+    }
+    res.status(200).json({ message: 'File uploaded !' })
+  } catch (error) {
+    res.status(500).json({ message: 'Error: ' + error })
+  }
 }
