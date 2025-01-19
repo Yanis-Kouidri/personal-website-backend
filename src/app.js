@@ -6,6 +6,7 @@ import docsRoutes from './routes/docs.js'
 import authRoutes from './routes/auth.js'
 import authentication from './middlewares/authentication.js'
 import cookieParser from 'cookie-parser'
+import cors from 'cors'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -18,7 +19,7 @@ let mongodbUrl = 'mongodb://'
 
 if (process.env.MONGODB_USERNAME && process.env.MONGODB_PASSWORD) {
   mongodbUrl +=
-    +process.env.MONGODB_USERNAME + ':' + process.env.MONGODB_PASSWORD + '@'
+    process.env.MONGODB_USERNAME + ':' + process.env.MONGODB_PASSWORD + '@'
 }
 
 mongodbUrl +=
@@ -30,22 +31,18 @@ mongodbUrl +=
 
 mongoose
   .connect(mongodbUrl)
-  .then(() => console.log('Connexion to mongodb database success'))
+  .then(() => console.log('Connection to mongodb database successed'))
   .catch((error) => console.error('Connexion failed: ' + error))
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000')
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization'
-  )
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, PUT, DELETE, PATCH, OPTIONS'
-  )
-  res.setHeader('Access-Control-Allow-Credentials', 'true') // Autoriser les credentials (cookies)
-  next()
-})
+const corsOptions = {
+  origin: process.env.FRONTEND_URL + ':' + process.env.FRONTEND_PORT,
+  methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
+  allowedHeaders:
+    'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization',
+  credentials: true,
+}
+
+app.use(cors(corsOptions))
 
 app.use('/api/docs', docsRoutes)
 app.use('/api/auth', authRoutes)
