@@ -14,13 +14,27 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 
+let mongodbUrl = 'mongodb://'
+
+if (process.env.MONGODB_USERNAME && process.env.MONGODB_PASSWORD) {
+  mongodbUrl +=
+    +process.env.MONGODB_USERNAME + ':' + process.env.MONGODB_PASSWORD + '@'
+}
+
+mongodbUrl +=
+  process.env.MONGODB_ADDRESS +
+  ':' +
+  process.env.MONGODB_PORT +
+  '/' +
+  process.env.MONGODB_DATABASE
+
 mongoose
-  .connect('mongodb://localhost:27017/test')
+  .connect(mongodbUrl)
   .then(() => console.log('Connexion to mongodb database success'))
-  .catch(() => console.log('Connexion failed'))
+  .catch((error) => console.error('Connexion failed: ' + error))
 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000') // URL exacte de votre frontend
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000')
   res.setHeader(
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization'
