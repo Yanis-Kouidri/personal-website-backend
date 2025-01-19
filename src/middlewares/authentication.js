@@ -1,9 +1,10 @@
 import jws from 'jsonwebtoken'
+import { TOKEN_COOKIE_NAME } from '../controllers/auth.js'
 
 const JWT_SECRET = process.env.JWT_SECRET
 
 function authentication(req, res, next) {
-  const token = req.cookies.token
+  const token = req.cookies[TOKEN_COOKIE_NAME]
   if (!token) {
     return res
       .status(401)

@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import User from '../models/user.js'
 
 const JWT_SECRET = process.env.JWT_SECRET
+export const TOKEN_COOKIE_NAME = 'jwt'
 
 const validateSignupInputs = (body) => {
   const { username, password, signupKey } = body
@@ -36,17 +37,17 @@ export const login = (req, res) => {
             expiresIn: '24h',
           }
         )
-        res.cookie('token', token, {
+        res.cookie(TOKEN_COOKIE_NAME, token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'prod', // HTTPS only in prod
           sameSite: 'Strict',
           maxAge: 3600000, // 1h
         })
-        return res.status(200).json({ message: 'Log-in successful' })
+        return res.status(200).json({ message: 'Log-in successful', username })
       })
     })
     .catch((error) => {
-      console.err("Login error: " + error)
+      console.err('Login error: ' + error)
       return res.status(500).json({ message: 'Internal server error' })
     })
 }
@@ -92,4 +93,13 @@ export const signup = async (req, res) => {
 
 export const me = (req, res) => {
   return res.status(200).json({ user: req.tokenData.username })
+}
+
+export const logout = (req, res) => {
+  res.clearCookie(TOKEN_COOKIE_NAME, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'prod',
+    sameSite: 'Strict',
+  })
+  res.status(200).json({ message: 'Log-out successful' })
 }
