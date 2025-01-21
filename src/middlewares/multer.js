@@ -6,13 +6,33 @@ const storage = multer.diskStorage({
     cb(null, 'data/docs/')
   },
   filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + '-' + Date.now() + path.extname(file.originalname)
-    )
+    cb(null, file.originalname)
   },
 })
 
-const upload = multer({ storage: storage })
+const docsFileFilter = (req, file, cb) => {
+  const filetypes = /pdf|msword|doc|docx|pptx|ptt|zip/
+  const mimetypeMatch = filetypes.test(file.mimetype)
+  const extnameMatch = filetypes.test(
+    path.extname(file.originalname).toLowerCase()
+  )
 
-export default upload
+  if (mimetypeMatch && extnameMatch) {
+    return cb(null, true)
+  }
+  cb(new Error('File type not supported'))
+}
+
+export const errorHandler = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ message: err.message })
+  } else if (err) {
+    return res.status(400).json({ message: err.message })
+  }
+  next()
+}
+
+export const docsUpload = multer({
+  storage: storage,
+  fileFilter: docsFileFilter,
+})
