@@ -9,14 +9,45 @@ const __dirname = dirname(__filename)
 export const getAllDocs = (req, res) => {
   const docsDir = path.join(__dirname, '../../data/docs')
 
-  fs.readdir(docsDir, (err, files) => {
-    if (err) {
-      return res
-        .status(500)
-        .json({ message: 'Erreur lors de la lecture du dossier' })
-    }
-    res.json(files)
-  })
+  const listFilesAndDirectories = (directory) => {
+    let result = []
+    const items = fs.readdirSync(directory)
+
+    items.forEach((item) => {
+      const fullPath = path.join(directory, item)
+      const relativePath = path.relative(docsDir, fullPath)
+      const stats = fs.statSync(fullPath)
+
+      if (stats.isDirectory()) {
+        result.push({
+          type: 'directory',
+          name: item,
+          path: relativePath,
+          contents: listFilesAndDirectories(fullPath),
+        })
+      } else {
+        result.push({
+          type: 'file',
+          name: item,
+          path: relativePath,
+        })
+      }
+    })
+
+    return result
+  }
+
+  try {
+    const filesAndDirectories = listFilesAndDirectories(docsDir)
+    res.json(filesAndDirectories)
+  } catch (err) {
+    res
+      .status(500)
+      .json({
+        message: 'Erreur lors de la lecture du dossier',
+        error: err.message,
+      })
+  }
 }
 
 export const addOneDoc = (req, res) => {
