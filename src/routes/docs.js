@@ -15,4 +15,6 @@ router.post(
   docsCtrl.addOneDoc
 )
 
+router.post('/newfolder', authentication, docsCtrl.newFolder)
+
 export default router
