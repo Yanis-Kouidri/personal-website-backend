@@ -39,9 +39,10 @@ export const login = (req, res) => {
         )
         res.cookie(TOKEN_COOKIE_NAME, token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'prod', // HTTPS only in prod
-          sameSite: 'Strict',
+          secure: true,
+          sameSite: 'None',
           maxAge: 3600000, // 1h
+          partitioned: true,
         })
         return res.status(200).json({ message: 'Log-in successful', username })
       })
