@@ -178,3 +178,9 @@ dist
 .pnp.*
 
 # End of https://www.toptal.com/developers/gitignore/api/yarn,node,visualstudiocode
+
+# Project part
+
+data/
+!data/Example_1.pdf
+!data/Example_2.pdf
