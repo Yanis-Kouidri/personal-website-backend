@@ -61,13 +61,17 @@ export const addOneDoc = (req, res) => {
 }
 
 export const newFolder = (req, res) => {
-  const { folderName } = req.body
+  const { folderName, folderPath } = req.body
 
   if (!folderName) {
     res.status(400).json({ message: 'File name required' })
   }
 
-  const newFolder = path.join(__dirname, storageFolder, folderName)
+  if (!folderPath) {
+    res.status(400).json({ message: 'File path required' })
+  }
+
+  const newFolder = path.join(__dirname, storageFolder, folderPath, folderName)
   if (!fs.existsSync(newFolder)) {
     fs.mkdirSync(newFolder)
     res.status(200).json({ message: 'Folder created' })
