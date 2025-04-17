@@ -1,9 +1,17 @@
 import multer from 'multer'
 import path from 'path'
+import fs from 'fs'
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'data/docs/')
+    const subfolder = req.query.path || ''
+    console.log('Subfolder: ' + req.body.path)
+    const basePath = path.join('data', 'docs')
+    const fullPath = path.join(basePath, subfolder)
+
+    fs.mkdirSync(fullPath, { recursive: true })
+
+    cb(null, fullPath)
   },
   filename: function (req, file, cb) {
     cb(null, decodeURIComponent(file.originalname))
