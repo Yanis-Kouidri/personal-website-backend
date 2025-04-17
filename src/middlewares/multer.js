@@ -4,12 +4,25 @@ import fs from 'fs'
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const subfolder = req.query.path || ''
-    console.log('Subfolder: ' + req.body.path)
-    const basePath = path.join('data', 'docs')
-    const fullPath = path.join(basePath, subfolder)
+    const requestedSubfolder = req.query.path || ''
 
-    fs.mkdirSync(fullPath, { recursive: true })
+    const sanitizedPath = path
+      .normalize(requestedSubfolder)
+      .replace(/^(\.\.(\/|\\|$))+/, '')
+
+    if (sanitizedPath.includes('..') || path.isAbsolute(sanitizedPath)) {
+      return cb(new Error('Invalid folder path'))
+    }
+    const basePath = path.join('data', 'docs')
+    const fullPath = path.join(basePath, sanitizedPath)
+
+    if (!fullPath.startsWith(basePath)) {
+      return cb(new Error('Invalid folder path 2'))
+    }
+
+    if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isDirectory()) {
+      return cb(new Error('Specified folder does not exist'))
+    }
 
     cb(null, fullPath)
   },
