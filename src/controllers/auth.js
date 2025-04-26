@@ -99,8 +99,8 @@ export const me = (req, res) => {
 export const logout = (req, res) => {
   res.clearCookie(TOKEN_COOKIE_NAME, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'prod',
-    sameSite: 'Strict',
+    secure: true,
+    sameSite: 'None',
   })
   res.status(200).json({ message: 'Log-out successful' })
 }
