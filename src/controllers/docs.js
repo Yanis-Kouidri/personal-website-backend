@@ -39,13 +39,19 @@ export const getAllDocs = (req, res) => {
   }
 
   try {
-    const filesAndDirectories = listFilesAndDirectories(docsDir)
-    res.json(filesAndDirectories)
-  } catch (err) {
-    res.status(500).json({
-      message: 'Erreur lors de la lecture du dossier',
-      error: err.message,
-    })
+    const result = [
+      {
+        type: 'directory',
+        name: '/',
+        path: '',
+        contents: listFilesAndDirectories(docsDir),
+      },
+    ]
+
+    res.json(result)
+  } catch (error) {
+    console.error('Erreur lors de la lecture des fichiers :', error)
+    res.status(500).json({ error: 'Erreur lors de la lecture des documents.' })
   }
 }
 
