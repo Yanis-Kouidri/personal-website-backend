@@ -51,7 +51,9 @@ export const getAllDocs = (req, res) => {
     res.json(result)
   } catch (error) {
     console.error('Erreur lors de la lecture des fichiers :', error)
-    res.status(500).json({ error: 'Erreur lors de la lecture des documents.' })
+    return res
+      .status(500)
+      .json({ error: 'Erreur lors de la lecture des documents.' })
   }
 }
 
@@ -62,7 +64,7 @@ export const addOneDoc = (req, res) => {
     }
     res.status(200).json({ message: 'File uploaded !' })
   } catch (error) {
-    res.status(500).json({ message: 'Error: ' + error })
+    return res.status(500).json({ message: 'Error: ' + error })
   }
 }
 
@@ -70,18 +72,22 @@ export const newFolder = (req, res) => {
   const { folderName, folderPath } = req.body
 
   if (!folderName) {
-    res.status(400).json({ message: 'File name required' })
+    return res.status(400).json({ message: 'Folder name is required' })
   }
 
-  if (!folderPath) {
-    res.status(400).json({ message: 'File path required' })
+  let newFolderPath = folderPath
+    ? path.join(__dirname, storageFolder, folderPath, folderName)
+    : path.join(__dirname, storageFolder, folderName)
+
+  if (fs.existsSync(newFolderPath)) {
+    return res.status(400).json({ message: 'Folder already exists' })
   }
 
-  const newFolder = path.join(__dirname, storageFolder, folderPath, folderName)
-  if (!fs.existsSync(newFolder)) {
-    fs.mkdirSync(newFolder)
-    res.status(200).json({ message: 'Folder created' })
-  } else {
-    res.status(400).json({ message: 'Folder already exist' })
+  try {
+    fs.mkdirSync(newFolderPath)
+    res.status(200).json({ message: 'Folder created successfully' })
+  } catch (error) {
+    console.error('Error creating folder:', error)
+    res.status(500).json({ message: 'Internal server error' })
   }
 }
