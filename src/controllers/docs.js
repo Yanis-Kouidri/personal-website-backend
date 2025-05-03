@@ -85,9 +85,42 @@ export const newFolder = (req, res) => {
 
   try {
     fs.mkdirSync(newFolderPath)
-    res.status(200).json({ message: 'Folder created successfully' })
+    return res.status(200).json({ message: 'Folder created successfully' })
   } catch (error) {
-    console.error('Error creating folder:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('Error creating folder: ', error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+export const deleteFile = (req, res) => {
+  const { filePath } = req.body
+
+  if (!filePath) {
+    return res.status(400).json({ message: 'File path is required' })
+  }
+
+  const baseDir = path.join(__dirname, storageFolder) // root docs folder
+  const targetPath = path.join(baseDir, filePath)
+  const normalizedPath = path.normalize(targetPath)
+
+  if (!normalizedPath.startsWith(baseDir)) {
+    return res.status(403).json({ message: 'Unauthorized path' })
+  }
+
+  if (!fs.existsSync(normalizedPath)) {
+    return res.status(404).json({ message: 'File does not exist' })
+  }
+
+  const stat = fs.statSync(normalizedPath)
+  if (!stat.isFile()) {
+    return res.status(400).json({ message: 'Target is not a file' })
+  }
+
+  try {
+    fs.unlinkSync(normalizedPath)
+    return res.status(200).json({ message: 'File successfully deleted' })
+  } catch (error) {
+    console.error('Error deleting file: ', error)
+    return res.status(500).json({ message: 'Internal server error' })
   }
 }
