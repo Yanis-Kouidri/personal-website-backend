@@ -17,6 +17,6 @@ router.post(
 
 router.post('/newfolder', authentication, docsCtrl.newFolder)
 
-router.delete('/', authentication, docsCtrl.deleteFile)
+router.delete('/', authentication, docsCtrl.deleteItem)
 
 export default router

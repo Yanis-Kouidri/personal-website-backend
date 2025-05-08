@@ -124,3 +124,51 @@ export const deleteFile = (req, res) => {
     return res.status(500).json({ message: 'Internal server error' })
   }
 }
+
+export const deleteItem = (req, res) => {
+  const { path: itemPath } = req.body
+
+  if (!itemPath) {
+    return res.status(400).json({ message: 'Path is required' })
+  }
+
+  const baseDir = path.join(__dirname, storageFolder)
+  const targetPath = path.join(baseDir, itemPath)
+  const normalizedPath = path.normalize(targetPath)
+
+  if (!normalizedPath.startsWith(baseDir)) {
+    return res.status(403).json({ message: 'Unauthorized path' })
+  }
+
+  if (!fs.existsSync(normalizedPath)) {
+    return res.status(404).json({ message: 'Item does not exist' })
+  }
+
+  const stat = fs.statSync(normalizedPath)
+
+  if (stat.isFile()) {
+    try {
+      fs.unlinkSync(normalizedPath)
+      return res.status(200).json({ message: 'File successfully deleted' })
+    } catch (error) {
+      console.error('Error deleting file: ', error)
+      return res.status(500).json({ message: 'Internal server error' })
+    }
+  } else if (stat.isDirectory()) {
+    // Check if folder is empty
+    const contents = fs.readdirSync(normalizedPath)
+    if (contents.length > 0) {
+      return res.status(400).json({ message: 'Folder is not empty' })
+    }
+
+    try {
+      fs.rmdirSync(normalizedPath)
+      return res.status(200).json({ message: 'Folder successfully deleted' })
+    } catch (error) {
+      console.error('Error deleting folder: ', error)
+      return res.status(500).json({ message: 'Internal server error' })
+    }
+  } else {
+    return res.status(400).json({ message: 'Invalid item type' })
+  }
+}
