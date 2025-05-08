@@ -19,4 +19,6 @@ router.post('/newfolder', authentication, docsCtrl.newFolder)
 
 router.delete('/', authentication, docsCtrl.deleteItem)
 
+router.patch('/rename', authentication, docsCtrl.renameItem)
+
 export default router

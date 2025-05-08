@@ -172,3 +172,59 @@ export const deleteItem = (req, res) => {
     return res.status(400).json({ message: 'Invalid item type' })
   }
 }
+
+export const renameItem = (req, res) => {
+  const { itemPath, newName } = req.body
+
+  if (!newName) {
+    return res.status(400).json({ message: 'Name is required' })
+  }
+  if (itemPath === null) {
+    return res.status(400).json({ message: 'Item path is required' })
+  }
+  if (!itemPath) {
+    return res.status(400).json({ message: "You can't rename root" })
+  }
+  if (/[/\\]/.test(newName)) {
+    return res
+      .status(400)
+      .json({ message: 'New name contains invalid characters' })
+  }
+
+  const baseDir = path.join(__dirname, storageFolder)
+  const targetPath = path.join(baseDir, itemPath)
+  const normalizedPath = path.normalize(targetPath)
+
+  if (!normalizedPath.startsWith(baseDir)) {
+    return res.status(403).json({ message: 'Unauthorized path' })
+  }
+
+  if (!fs.existsSync(normalizedPath)) {
+    return res.status(404).json({ message: 'Item does not exist' })
+  }
+
+  const stat = fs.statSync(normalizedPath)
+  const itemType = stat.isFile() ? 'file' : stat.isDirectory() ? 'folder' : null
+
+  if (!itemType) {
+    return res.status(400).json({ message: 'Invalid item type' })
+  }
+
+  const parentDir = path.dirname(normalizedPath)
+  const newPath = path.join(parentDir, newName)
+  const normalizeNewPath = path.normalize(newPath)
+
+  if (fs.existsSync(normalizeNewPath)) {
+    return res.status(400).json({ message: 'New name already exists' })
+  }
+
+  try {
+    fs.renameSync(normalizedPath, normalizeNewPath)
+    return res.status(200).json({
+      message: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} successfully renamed`,
+    })
+  } catch (error) {
+    console.error('Erro renaming item: ', error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+}
