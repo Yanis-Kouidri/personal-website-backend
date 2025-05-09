@@ -35,7 +35,9 @@ mongoose
   .catch((error) => console.error('Connexion failed: ' + error))
 
 const corsOptions = {
-  origin: process.env.FRONTEND_URL + ':' + process.env.FRONTEND_PORT,
+  origin:
+    process.env.FRONTEND_URL +
+    (process.env.FRONTEND_PORT ? ':' + process.env.FRONTEND_PORT : ''),
   methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
   allowedHeaders:
     'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization',
