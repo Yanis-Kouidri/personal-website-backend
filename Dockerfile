@@ -1,11 +1,11 @@
-FROM node:22.14.0-bullseye-slim 
+FROM node:22.14.0-alpine3.21
 
 # Set working directory
 WORKDIR /app
 
-ENV NODE_ENV=production
+RUN apk add --no-cache dumb-init
 
-RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
+ENV NODE_ENV=production
 
 # Enable Corepack for Yarn
 RUN corepack enable
