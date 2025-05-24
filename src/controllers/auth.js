@@ -87,7 +87,7 @@ export const signup = async (req, res) => {
 
     return res.status(201).json({ message: 'User successfully created' })
   } catch (error) {
-    console.error('Error in signup:', error)
+    console.error('Error in signup: ', error)
     return res.status(500).json({ message: 'Internal server error' })
   }
 }
