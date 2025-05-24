@@ -29,15 +29,21 @@ mongodbUrl +=
   '/' +
   process.env.MONGODB_DATABASE
 
+console.log('Mongodb URI: ' + mongodbUrl)
+
 mongoose
   .connect(mongodbUrl)
   .then(() => console.log('Connection to mongodb database successed'))
   .catch((error) => console.error('Connexion failed: ' + error))
 
+const cors_origin =
+  process.env.FRONTEND_URL +
+  (process.env.FRONTEND_PORT ? ':' + process.env.FRONTEND_PORT : '')
+
+console.log('CORS origin: ' + cors_origin)
+
 const corsOptions = {
-  origin:
-    process.env.FRONTEND_URL +
-    (process.env.FRONTEND_PORT ? ':' + process.env.FRONTEND_PORT : ''),
+  origin: cors_origin,
   methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
   allowedHeaders:
     'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization',
