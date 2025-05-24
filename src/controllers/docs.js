@@ -10,6 +10,10 @@ const storageFolder = '../../data/docs'
 export const getAllDocs = (req, res) => {
   const docsDir = path.join(__dirname, storageFolder)
 
+  if (!fs.existsSync(docsDir)) {
+    fs.mkdirSync(docsDir, { recursive: true })
+  }
+
   const listFilesAndDirectories = (directory) => {
     let result = []
     const items = fs.readdirSync(directory)
