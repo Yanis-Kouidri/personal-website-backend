@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import User from '../models/user.js'
 
-const JWT_SECRET = process.env.JWT_SECRET
+const NODE_JS_JWT_SECRET = process.env.NODE_JS_JWT_SECRET
 export const TOKEN_COOKIE_NAME = 'jwt'
 
 const validateSignupInputs = (body) => {
@@ -32,7 +32,7 @@ export const login = (req, res) => {
         }
         const token = jwt.sign(
           { id: user._id, username: username },
-          JWT_SECRET,
+          NODE_JS_JWT_SECRET,
           {
             expiresIn: '24h',
           }
@@ -56,7 +56,7 @@ export const login = (req, res) => {
 export const signup = async (req, res) => {
   try {
     const errorMessage = 'Unauthorized sign-up'
-    const signupKey = process.env.SIGN_UP_KEY
+    const signupKey = process.env.NODE_JS_SIGN_UP_KEY
 
     // Fields validation
     const validationError = validateSignupInputs(req.body)

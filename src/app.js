@@ -19,17 +19,23 @@ console.log('Env variables: ' + JSON.stringify(process.env, null, 2))
 
 let mongodbUrl = 'mongodb://'
 
-if (process.env.MONGODB_USERNAME && process.env.MONGODB_PASSWORD) {
+if (
+  process.env.NODE_JS_MONGODB_USERNAME &&
+  process.env.NODE_JS_MONGODB_PASSWORD
+) {
   mongodbUrl +=
-    process.env.MONGODB_USERNAME + ':' + process.env.MONGODB_PASSWORD + '@'
+    process.env.NODE_JS_MONGODB_USERNAME +
+    ':' +
+    process.env.NODE_JS_MONGODB_PASSWORD +
+    '@'
 }
 
 mongodbUrl +=
-  process.env.MONGODB_ADDRESS +
+  process.env.NODE_JS_MONGODB_ADDRESS +
   ':' +
-  process.env.MONGODB_PORT +
+  process.env.NODE_JS_MONGODB_PORT +
   '/' +
-  process.env.MONGODB_DATABASE
+  process.env.NODE_JS_MONGODB_DATABASE
 
 console.log('Mongodb URI: ' + mongodbUrl)
 
@@ -39,8 +45,10 @@ mongoose
   .catch((error) => console.error('Connexion failed: ' + error))
 
 const cors_origin =
-  process.env.FRONTEND_URL +
-  (process.env.FRONTEND_PORT ? ':' + process.env.FRONTEND_PORT : '')
+  process.env.NODE_JS_FRONTEND_URL +
+  (process.env.NODE_JS_FRONTEND_PORT
+    ? ':' + process.env.NODE_JS_FRONTEND_PORT
+    : '')
 
 console.log('CORS origin: ' + cors_origin)
 

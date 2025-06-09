@@ -1,7 +1,7 @@
 import jws from 'jsonwebtoken'
 import { TOKEN_COOKIE_NAME } from '../controllers/auth.js'
 
-const JWT_SECRET = process.env.JWT_SECRET
+const NODE_JS_JWT_SECRET = process.env.NODE_JS_JWT_SECRET
 
 function authentication(req, res, next) {
   const token = req.cookies[TOKEN_COOKIE_NAME]
@@ -12,7 +12,7 @@ function authentication(req, res, next) {
   }
 
   try {
-    const tokenData = jws.verify(token, JWT_SECRET)
+    const tokenData = jws.verify(token, NODE_JS_JWT_SECRET)
     req.tokenData = tokenData
     next()
   } catch (error) {
