@@ -15,6 +15,8 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 
+console.log('Env variables: ' + JSON.stringify(process.env, null, 2))
+
 let mongodbUrl = 'mongodb://'
 
 if (process.env.MONGODB_USERNAME && process.env.MONGODB_PASSWORD) {
