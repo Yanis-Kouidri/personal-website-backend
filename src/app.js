@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.js'
 import authentication from './middlewares/authentication.js'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+import validateEnv from './utils/validateEnv.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -15,7 +16,8 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 
-console.log('Env variables: ' + JSON.stringify(process.env, null, 2))
+//console.log('Env variables: ' + JSON.stringify(process.env, null, 2))
+validateEnv()
 
 let mongodbUrl = 'mongodb://'
 
