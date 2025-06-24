@@ -48,7 +48,7 @@ export const login = (req, res) => {
       })
     })
     .catch((error) => {
-      console.err('Login error: ' + error)
+      console.error('Login error: ' + error)
       return res.status(500).json({ message: 'Internal server error' })
     })
 }
