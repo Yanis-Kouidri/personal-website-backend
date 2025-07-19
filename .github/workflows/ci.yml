@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout le code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Installer Yarn 4.x
+        run: |
+          corepack enable
+          yarn set version stable
+          yarn --version
+
+      - name: Installer les dépendances
+        run: yarn install --immutable
+
+      - name: Linter
+        run: yarn lint
+
+      - name: Retire
+        run: yarn retire
+
+      - name: Audit deps
+        run: yarn npm audit -R --environment production
+
+      - name: Build
+        run: yarn build

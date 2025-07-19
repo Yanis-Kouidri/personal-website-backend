@@ -3,6 +3,9 @@
   "packageManager": "yarn@4.9.2",
   "main": "src/server.js",
   "type": "module",
+  "engines": {
+    "node": ">=24.4.0"
+  },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
@@ -16,11 +19,13 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "lint": "yarn eslint ."
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
     "eslint": "^9.31.0",
+    "eslint-plugin-n": "^17.21.0",
     "globals": "^16.3.0",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2"
