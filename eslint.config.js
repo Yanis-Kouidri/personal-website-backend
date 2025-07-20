@@ -7,6 +7,7 @@ import importPlugin from 'eslint-plugin-import'
 import pluginPromise from 'eslint-plugin-promise'
 import eslintConfigPrettier from 'eslint-config-prettier/flat'
 import pluginSecurity from 'eslint-plugin-security'
+import eslintPluginUnicorn from 'eslint-plugin-unicorn'
 
 export default defineConfig([
   globalIgnores(['dist', '.yarn', '.pnp.*', 'eslint.config.js']),
@@ -25,4 +26,5 @@ export default defineConfig([
   pluginPromise.configs['flat/recommended'],
   eslintConfigPrettier,
   pluginSecurity.configs.recommended,
+  eslintPluginUnicorn.configs.recommended,
 ])
