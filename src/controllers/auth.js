@@ -21,12 +21,12 @@ export const login = (req, res) => {
   const errorMessage = 'Invalid credentials'
   const { username, password } = req.body
 
-  User.findOne({ username })
+  return User.findOne({ username })
     .then((user) => {
       if (!user) {
         return res.status(401).json({ message: errorMessage })
       }
-      bcrypt.compare(password, user.password).then((isMatch) => {
+      return bcrypt.compare(password, user.password).then((isMatch) => {
         if (!isMatch) {
           return res.status(401).json({ message: errorMessage })
         }

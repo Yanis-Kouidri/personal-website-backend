@@ -1127,7 +1127,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint-community/eslint-utils@npm:^4.1.2, @eslint-community/eslint-utils@npm:^4.5.0":
+"@eslint-community/eslint-utils@npm:^4.1.2, @eslint-community/eslint-utils@npm:^4.4.0, @eslint-community/eslint-utils@npm:^4.5.0":
   version: 4.7.0
   resolution: "@eslint-community/eslint-utils@npm:4.7.0"
   dependencies:
@@ -1683,6 +1683,7 @@ __metadata:
     eslint: "npm:^9.31.0"
     eslint-plugin-import: "npm:^2.32.0"
     eslint-plugin-n: "npm:^17.21.0"
+    eslint-plugin-promise: "npm:^7.2.1"
     express: "npm:^5.1.0"
     express-rate-limit: "npm:^8.0.1"
     globals: "npm:^16.3.0"
@@ -2491,6 +2492,17 @@ __metadata:
   peerDependencies:
     eslint: ">=8.23.0"
   checksum: 10c0/23a27f7ddbefa5a11c37b944050245f9cf3590622e974431179e65a0dd76ff27909a439201279e4561d1979cdfeb93e434ae099526e91412e2f62ef2dd1f0b39
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-promise@npm:^7.2.1":
+  version: 7.2.1
+  resolution: "eslint-plugin-promise@npm:7.2.1"
+  dependencies:
+    "@eslint-community/eslint-utils": "npm:^4.4.0"
+  peerDependencies:
+    eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
+  checksum: 10c0/d494982faeeafbd2aa5fae9cbceca546169a8399000f72d5d940fa5c4ba554612903bcafbb8033647179e5d21ccf1d621b433d089695f7f47ce3d9fcf4cd0abf
   languageName: node
   linkType: hard
 
