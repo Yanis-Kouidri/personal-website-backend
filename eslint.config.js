@@ -5,6 +5,7 @@ import babelParser from '@babel/eslint-parser'
 import nodePlugin from 'eslint-plugin-n'
 import importPlugin from 'eslint-plugin-import'
 import pluginPromise from 'eslint-plugin-promise'
+import eslintConfigPrettier from 'eslint-config-prettier/flat'
 
 export default defineConfig([
   globalIgnores(['dist', '.yarn', '.pnp.*', 'eslint.config.js']),
@@ -21,4 +22,5 @@ export default defineConfig([
   nodePlugin.configs['flat/recommended'],
   importPlugin.flatConfigs.recommended,
   pluginPromise.configs['flat/recommended'],
+  eslintConfigPrettier,
 ])

@@ -1681,6 +1681,7 @@ __metadata:
     cors: "npm:^2.8.5"
     dotenv: "npm:^17.2.0"
     eslint: "npm:^9.31.0"
+    eslint-config-prettier: "npm:^10.1.8"
     eslint-plugin-import: "npm:^2.32.0"
     eslint-plugin-n: "npm:^17.21.0"
     eslint-plugin-promise: "npm:^7.2.1"
@@ -2408,6 +2409,17 @@ __metadata:
   peerDependencies:
     eslint: ">=6.0.0"
   checksum: 10c0/325e815205fab70ebcd379f6d4b5d44c7d791bb8dfe0c9888233f30ebabd9418422595b53a781b946c768d9244d858540e5e6129a6b3dd6d606f467d599edc6c
+  languageName: node
+  linkType: hard
+
+"eslint-config-prettier@npm:^10.1.8":
+  version: 10.1.8
+  resolution: "eslint-config-prettier@npm:10.1.8"
+  peerDependencies:
+    eslint: ">=7.0.0"
+  bin:
+    eslint-config-prettier: bin/cli.js
+  checksum: 10c0/e1bcfadc9eccd526c240056b1e59c5cd26544fe59feb85f38f4f1f116caed96aea0b3b87868e68b3099e55caaac3f2e5b9f58110f85db893e83a332751192682
   languageName: node
   linkType: hard
 
