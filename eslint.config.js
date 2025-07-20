@@ -1,7 +1,9 @@
 import js from '@eslint/js'
 import globals from 'globals'
 import { defineConfig, globalIgnores } from 'eslint/config'
+import babelParser from '@babel/eslint-parser'
 import nodePlugin from 'eslint-plugin-n'
+import importPlugin from 'eslint-plugin-import'
 
 export default defineConfig([
   globalIgnores(['dist', '.yarn', '.pnp.*', 'eslint.config.js']),
@@ -12,7 +14,9 @@ export default defineConfig([
     languageOptions: {
       globals: globals.node,
       sourceType: 'module',
+      parser: babelParser,
     },
   },
   nodePlugin.configs['flat/recommended'],
+  importPlugin.flatConfigs.recommended,
 ])
