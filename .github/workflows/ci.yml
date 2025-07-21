@@ -31,6 +31,9 @@ jobs:
       - name: Linter
         run: yarn lint
 
+      - name: Tests unitaires
+        run: yarn test
+
       - name: Retire
         run: yarn retire
 
