@@ -2,8 +2,8 @@
 import validateEnvironmentVariables from '../../src/utils/validate-environment-variables'
 
 describe('validateEnvironmentVariables', () => {
-  const originalEnv = process.env
-  const requiredEnvVars = [
+  const originalEnvironment = process.env
+  const requiredEnvironmentVariables = [
     'NODE_JS_MONGODB_USERNAME',
     'NODE_JS_MONGODB_PASSWORD',
     'NODE_JS_MONGODB_ADDRESS',
@@ -19,18 +19,18 @@ describe('validateEnvironmentVariables', () => {
 
   beforeEach(() => {
     jest.resetModules() // reset dotenv config if used
-    process.env = { ...originalEnv } // clone env
+    process.env = { ...originalEnvironment } // clone env
     jest.spyOn(console, 'log').mockImplementation(() => {})
     jest.spyOn(console, 'error').mockImplementation(() => {})
   })
 
   afterEach(() => {
-    process.env = originalEnv
+    process.env = originalEnvironment
     jest.restoreAllMocks()
   })
 
   it('should log success if all env variables are present', () => {
-    for (const key of requiredEnvVars) {
+    for (const key of requiredEnvironmentVariables) {
       process.env[key] = 'test'
     }
 

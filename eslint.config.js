@@ -10,7 +10,7 @@ import pluginSecurity from 'eslint-plugin-security'
 import eslintPluginUnicorn from 'eslint-plugin-unicorn'
 
 export default defineConfig([
-  globalIgnores(['dist', '.yarn', '.pnp.*', 'eslint.config.js']),
+  globalIgnores(['dist', '.yarn', '.pnp.*', 'eslint.config.js', 'coverage']),
   {
     files: ['**/*.{js,mjs,cjs}'],
     plugins: { js },
