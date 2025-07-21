@@ -1,6 +1,6 @@
 import express from 'express'
 import * as authCtrl from '../controllers/auth.js'
-import { loginLimiter, tokenVerifLimiter } from '../middlewares/rateLimiter.js'
+import { loginLimiter, tokenVerifLimiter } from '../middlewares/rate-limiter.js'
 import authentication from '../middlewares/authentication.js'
 
 const router = express.Router()

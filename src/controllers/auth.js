@@ -14,21 +14,21 @@ const validateSignupInputs = (body) => {
   if (password.length < 8) {
     return 'Password must be at least 8 characters long'
   }
-  return null
+  return
 }
 
-export const login = (req, res) => {
+export const login = (request, response) => {
   const errorMessage = 'Invalid credentials'
-  const { username, password } = req.body
+  const { username, password } = request.body
 
   return User.findOne({ username })
     .then((user) => {
       if (!user) {
-        return res.status(401).json({ message: errorMessage })
+        return response.status(401).json({ message: errorMessage })
       }
       return bcrypt.compare(password, user.password).then((isMatch) => {
         if (!isMatch) {
-          return res.status(401).json({ message: errorMessage })
+          return response.status(401).json({ message: errorMessage })
         }
         const token = jwt.sign(
           { id: user._id, username: username },
@@ -37,70 +37,72 @@ export const login = (req, res) => {
             expiresIn: '24h',
           }
         )
-        res.cookie(TOKEN_COOKIE_NAME, token, {
+        response.cookie(TOKEN_COOKIE_NAME, token, {
           httpOnly: true,
           secure: true,
           sameSite: 'None',
-          maxAge: 3600000, // 1h
+          maxAge: 60 * 60 * 1000, // 1h in ms
           partitioned: true,
         })
-        return res.status(200).json({ message: 'Log-in successful', username })
+        return response
+          .status(200)
+          .json({ message: 'Log-in successful', username })
       })
     })
     .catch((error) => {
       console.error('Login error: ' + error)
-      return res.status(500).json({ message: 'Internal server error' })
+      return response.status(500).json({ message: 'Internal server error' })
     })
 }
 
-export const signup = async (req, res) => {
+export const signup = async (request, response) => {
   try {
     const errorMessage = 'Unauthorized sign-up'
     const signupKey = process.env.NODE_JS_SIGN_UP_KEY
 
     // Fields validation
-    const validationError = validateSignupInputs(req.body)
+    const validationError = validateSignupInputs(request.body)
     if (validationError) {
-      return res.status(400).json({ message: validationError })
+      return response.status(400).json({ message: validationError })
     }
 
     // Check sign-up key
-    if (req.body.signupKey !== signupKey) {
+    if (request.body.signupKey !== signupKey) {
       console.log('Wrong sign-up key')
-      return res.status(401).json({ message: errorMessage })
+      return response.status(401).json({ message: errorMessage })
     }
 
     // Check is user already exist
-    const userExist = await User.findOne({ username: req.body.username })
+    const userExist = await User.findOne({ username: request.body.username })
     if (userExist) {
       console.log('User already exists: ' + userExist)
-      return res.status(401).json({ message: errorMessage })
+      return response.status(401).json({ message: errorMessage })
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10)
+    const hashedPassword = await bcrypt.hash(request.body.password, 10)
 
     const user = new User({
-      username: req.body.username,
+      username: request.body.username,
       password: hashedPassword,
     })
     await user.save()
 
-    return res.status(201).json({ message: 'User successfully created' })
+    return response.status(201).json({ message: 'User successfully created' })
   } catch (error) {
-    console.error('Error in signup: ', error)
-    return res.status(500).json({ message: 'Internal server error' })
+    console.error('Error in signup:', error)
+    return response.status(500).json({ message: 'Internal server error' })
   }
 }
 
-export const me = (req, res) => {
-  return res.status(200).json({ user: req.tokenData.username })
+export const me = (request, response) => {
+  return response.status(200).json({ user: request.tokenData.username })
 }
 
-export const logout = (req, res) => {
-  res.clearCookie(TOKEN_COOKIE_NAME, {
+export const logout = (request, response) => {
+  response.clearCookie(TOKEN_COOKIE_NAME, {
     httpOnly: true,
     secure: true,
     sameSite: 'None',
   })
-  res.status(200).json({ message: 'Log-out successful' })
+  response.status(200).json({ message: 'Log-out successful' })
 }

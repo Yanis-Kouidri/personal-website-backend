@@ -1,12 +1,12 @@
-import http from 'http'
+import http from 'node:http'
 import 'dotenv/config'
 import app from './app.js'
 
-const normalizePort = (val) => {
-  const port = parseInt(val, 10)
+const normalizePort = (value) => {
+  const port = Number.parseInt(value, 10)
 
-  if (isNaN(port)) {
-    return val
+  if (Number.isNaN(port)) {
+    return value
   }
   if (port >= 0) {
     return port
@@ -23,16 +23,19 @@ const errorHandler = (error) => {
   const address = server.address()
   const bind = typeof address === 'string' ? 'pipe ' + address : 'port: ' + port
   switch (error.code) {
-    case 'EACCES':
+    case 'EACCES': {
       console.error(bind + ' requires elevated privileges.')
-      process.exit(1)
-      break
-    case 'EADDRINUSE':
+      throw new Error(
+        'Impossible to bind this port, elevated privileges requiered'
+      )
+    }
+    case 'EADDRINUSE': {
       console.error(bind + ' is already in use.')
-      process.exit(1)
-      break
-    default:
+      throw new Error('Impossible to bind this port, already in use')
+    }
+    default: {
       throw error
+    }
   }
 }
 

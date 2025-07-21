@@ -1,13 +1,13 @@
 import express from 'express'
 import mongoose from 'mongoose'
-import path from 'path'
-import { fileURLToPath } from 'url'
-import docsRoutes from './routes/docs.js'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import documentationRoutes from './routes/documentation.js'
 import authRoutes from './routes/auth.js'
 import authentication from './middlewares/authentication.js'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
-import validateEnv from './utils/validateEnv.js'
+import checkEnvironmentVariables from './utils/validate-environment-variables.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -17,7 +17,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 //console.log('Env variables: ' + JSON.stringify(process.env, null, 2))
-validateEnv()
+checkEnvironmentVariables()
 
 let mongodbUrl = 'mongodb://'
 
@@ -41,10 +41,12 @@ mongodbUrl +=
 
 console.log('Mongodb URI: ' + mongodbUrl)
 
-mongoose
-  .connect(mongodbUrl)
-  .then(() => console.log('Connection to mongodb database successed'))
-  .catch((error) => console.error('Connexion failed: ' + error))
+try {
+  await mongoose.connect(mongodbUrl)
+  console.log('Connection to mongodb database successed')
+} catch (error) {
+  console.error('Connexion failed: ' + error)
+}
 
 const cors_origin =
   process.env.NODE_JS_FRONTEND_URL +
@@ -64,13 +66,13 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 
-app.use('/api/docs', docsRoutes)
+app.use('/api/docs', documentationRoutes)
 app.use('/api/auth', authRoutes)
 
 app.use('/data/docs', express.static(path.join(__dirname, '../data/docs')))
 
-app.get('/protected-route', authentication, (req, res) => {
-  res.json({ message: 'Access granted', user: req.user })
+app.get('/protected-route', authentication, (request, response) => {
+  response.json({ message: 'Access granted', user: request.user })
 })
 
 export default app

@@ -1,10 +1,10 @@
 import dotenv from 'dotenv'
 
-function validateEnv() {
+function validateEnvironmentVariables() {
   // Load environment variables from the .env file
   dotenv.config()
 
-  const requiredEnvVars = [
+  const requiredEnvironmentVariables = [
     'NODE_JS_MONGODB_USERNAME',
     'NODE_JS_MONGODB_PASSWORD',
     'NODE_JS_MONGODB_ADDRESS',
@@ -18,17 +18,17 @@ function validateEnv() {
     'NODE_JS_JWT_SECRET',
   ]
 
-  const missingEnvVars = requiredEnvVars.filter(
-    (envVar) => !process.env[envVar]
+  const missingEnvironmentVariables = requiredEnvironmentVariables.filter(
+    (environmentVarriable) => !process.env[environmentVarriable]
   )
 
-  if (missingEnvVars.length > 0) {
+  if (missingEnvironmentVariables.length > 0) {
     console.error(
-      `WARN: The following environment variables are missing or not defined: ${missingEnvVars.join(', ')}`
+      `WARN: The following environment variables are missing or not defined: ${missingEnvironmentVariables.join(', ')}`
     )
   } else {
     console.log('All required environment variables are defined.')
   }
 }
 
-export default validateEnv
+export default validateEnvironmentVariables
