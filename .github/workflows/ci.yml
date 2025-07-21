@@ -31,8 +31,8 @@ jobs:
       - name: Linter
         run: yarn lint
 
-      # - name: Retire
-      #   run: yarn retire
+      - name: Retire
+        run: yarn retire
 
       - name: Audit deps
         run: yarn npm audit -R --environment production
