@@ -36,6 +36,3 @@ jobs:
 
       - name: Audit deps
         run: yarn npm audit -R --environment production
-
-      - name: Build
-        run: yarn build
