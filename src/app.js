@@ -14,6 +14,14 @@ const __dirname = path.dirname(__filename)
 
 const app = express()
 app.use(express.json())
+app.use((error, request, response, next) => {
+  if (error instanceof SyntaxError && error.status === 400 && 'body' in error) {
+    console.error('Malformed JSON:', error.message)
+    return response.status(400).json({ message: 'Invalid JSON' })
+  }
+  next(error)
+})
+
 app.use(cookieParser())
 
 //console.log('Env variables: ' + JSON.stringify(process.env, null, 2))

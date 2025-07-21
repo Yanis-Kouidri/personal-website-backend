@@ -6,20 +6,10 @@ import User from '../models/user.js'
 const NODE_JS_JWT_SECRET = process.env.NODE_JS_JWT_SECRET
 export const TOKEN_COOKIE_NAME = 'jwt'
 
-const validateSignupInputs = (body) => {
-  const { username, password, signupKey } = body
-  if (!username || !password || !signupKey) {
-    return 'All fields are required: username, password, and signupKey'
-  }
-  if (password.length < 8) {
-    return 'Password must be at least 8 characters long'
-  }
-  return
-}
-
 export const login = (request, response) => {
   const errorMessage = 'Invalid credentials'
-  const { username, password } = request.body
+
+  const { username, password } = request.body // Already validated
 
   return User.findOne({ username })
     .then((user) => {
@@ -58,31 +48,27 @@ export const login = (request, response) => {
 export const signup = async (request, response) => {
   try {
     const errorMessage = 'Unauthorized sign-up'
-    const signupKey = process.env.NODE_JS_SIGN_UP_KEY
+    const serverSignupKey = process.env.NODE_JS_SIGN_UP_KEY
 
-    // Fields validation
-    const validationError = validateSignupInputs(request.body)
-    if (validationError) {
-      return response.status(400).json({ message: validationError })
-    }
+    const { username, password, signupKey } = request.body // Already validated
 
     // Check sign-up key
-    if (request.body.signupKey !== signupKey) {
+    if (signupKey !== serverSignupKey) {
       console.log('Wrong sign-up key')
       return response.status(401).json({ message: errorMessage })
     }
 
     // Check is user already exist
-    const userExist = await User.findOne({ username: request.body.username })
+    const userExist = await User.findOne({ username: username })
     if (userExist) {
       console.log('User already exists: ' + userExist)
       return response.status(401).json({ message: errorMessage })
     }
 
-    const hashedPassword = await bcrypt.hash(request.body.password, 10)
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     const user = new User({
-      username: request.body.username,
+      username: username,
       password: hashedPassword,
     })
     await user.save()
