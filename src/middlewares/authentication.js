@@ -1,8 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { TOKEN_COOKIE_NAME } from '../controllers/auth.js'
 
-const NODE_JS_JWT_SECRET = process.env.NODE_JS_JWT_SECRET
-
 function authentication(request, response, next) {
   const token = request.cookies[TOKEN_COOKIE_NAME]
   if (!token) {
@@ -12,7 +10,7 @@ function authentication(request, response, next) {
   }
 
   try {
-    const tokenData = jwt.verify(token, NODE_JS_JWT_SECRET)
+    const tokenData = jwt.verify(token, process.env.NODE_JS_JWT_SECRET)
     request.tokenData = tokenData
     next()
   } catch (error) {
