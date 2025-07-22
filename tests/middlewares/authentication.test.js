@@ -44,7 +44,6 @@ describe('authentication middleware', () => {
   it('should call next and attach tokenData if token is valid', () => {
     const payload = { userId: 'abc123' }
     const token = jwt.sign(payload, process.env.NODE_JS_JWT_SECRET)
-    console.log(token)
 
     request.cookies[TOKEN_COOKIE_NAME] = token
 
