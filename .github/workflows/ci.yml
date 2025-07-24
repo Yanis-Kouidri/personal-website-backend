@@ -75,3 +75,9 @@ jobs:
           tags: |
             ${{ steps.image.outputs.name }}:latest
             ${{ steps.image.outputs.name }}:${{ steps.pkg.outputs.version }}
+
+      - name: Vérifier les tags publiés
+        run: |
+          echo "Image pushed:"
+          echo "${{ steps.image.outputs.name }}:latest"
+          echo "${{ steps.image.outputs.name }}:${{ steps.pkg.outputs.version }}"
