@@ -37,9 +37,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Installer les dépendances
-        run: |
-          yarn install --immutable
-          cat .pnp.cjs
+        run: yarn install --immutable
 
       - name: Linter
         run: yarn lint
@@ -75,6 +73,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # ✅ Cache Docker layers avec GitHub Cache (automatique et efficace)
+      - name: Docker cache (Buildx)
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile', 'yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
       # Build multi-arch et push avec tags
       - name: Build et push multi-arch Docker image
         uses: docker/build-push-action@v5
@@ -85,6 +92,8 @@ jobs:
           tags: |
             ${{ steps.image.outputs.name }}:latest
             ${{ steps.image.outputs.name }}:${{ steps.pkg.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Vérifier les tags publiés
         run: |
