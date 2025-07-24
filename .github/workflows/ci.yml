@@ -47,11 +47,13 @@ jobs:
         id: pkg
         run: echo "version=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
 
-      - name: Build et push image Docker avec version package.json
-        env:
-          IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/backend-node
-          VERSION: ${{ steps.pkg.outputs.version }}
+      - name: Préparer le nom de l'image (en minuscules)
+        id: image
         run: |
-          docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:$VERSION .
-          docker push $IMAGE_NAME:latest
-          docker push $IMAGE_NAME:$VERSION
+          owner_lc=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "name=ghcr.io/$owner_lc/backend-node" >> "$GITHUB_OUTPUT"
+
+      - name: Build et push image Docker
+        run: |
+          docker build -t ${{ steps.image.outputs.name }}:latest .
+          docker push ${{ steps.image.outputs.name }}:latest
