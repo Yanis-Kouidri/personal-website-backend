@@ -66,6 +66,7 @@ console.log('CORS origin: ' + cors_origin)
 
 const corsOptions = {
   origin: cors_origin,
+
   methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
   allowedHeaders:
     'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization',
