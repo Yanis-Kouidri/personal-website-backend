@@ -29,7 +29,7 @@ jobs:
           yarn --version
 
       - name: Installer les dépendances
-        run: yarn workspaces focus --production
+        run: yarn install --immutable
 
       - name: Linter
         run: yarn lint

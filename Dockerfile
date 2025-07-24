@@ -13,7 +13,7 @@ COPY .yarnrc.yml ./
 COPY package.json ./
 COPY yarn.lock ./
 
-RUN yarn install --immutable
+RUN yarn workspaces focus --production
 
 COPY src ./src
 
