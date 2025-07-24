@@ -39,3 +39,19 @@ jobs:
 
       - name: Audit deps
         run: yarn npm audit -R --environment production
+
+      - name: Connexion à GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Extraire la version du package.json
+        id: pkg
+        run: echo "version=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Build et push image Docker avec version package.json
+        env:
+          IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/backend-node
+          VERSION: ${{ steps.pkg.outputs.version }}
+        run: |
+          docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:$VERSION .
+          docker push $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:$VERSION
