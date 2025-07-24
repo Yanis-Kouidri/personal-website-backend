@@ -37,7 +37,9 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Installer les dépendances
-        run: yarn install --immutable
+        run: |
+          yarn install --immutable
+          cat .pnp.cjs
 
       - name: Linter
         run: yarn lint
