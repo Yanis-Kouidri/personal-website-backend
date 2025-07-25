@@ -4,13 +4,24 @@ import fs from 'node:fs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const storageFolder = '../../data/docs'
+const DOCUMENTATION_DIRECTORY = path.join(__dirname, '../../data/docs')
+
+function getSafeUserPath(userPath) {
+  const fullPath = path.join(DOCUMENTATION_DIRECTORY, userPath)
+  const resolvedPath = path.resolve(fullPath)
+  if (!resolvedPath.startsWith(DOCUMENTATION_DIRECTORY)) {
+    throw new Error('Invalid path')
+  }
+  if (path.basename(userPath).startsWith('.')) {
+    throw new Error('Access to hidden files is forbidden')
+  }
+
+  return resolvedPath
+}
 
 export const getAllDocumentation = (request, response) => {
-  const documentationDirectory = path.join(__dirname, storageFolder)
-
-  if (!fs.existsSync(documentationDirectory)) {
-    fs.mkdirSync(documentationDirectory, { recursive: true })
+  if (!fs.existsSync(DOCUMENTATION_DIRECTORY)) {
+    fs.mkdirSync(DOCUMENTATION_DIRECTORY, { recursive: true })
   }
 
   const listFilesAndDirectories = (directory) => {
@@ -19,7 +30,7 @@ export const getAllDocumentation = (request, response) => {
 
     for (const item of items) {
       const fullPath = path.join(directory, item)
-      const relativePath = path.relative(documentationDirectory, fullPath)
+      const relativePath = path.relative(DOCUMENTATION_DIRECTORY, fullPath)
       const stats = fs.statSync(fullPath)
 
       if (stats.isDirectory()) {
@@ -47,7 +58,7 @@ export const getAllDocumentation = (request, response) => {
         type: 'directory',
         name: '/',
         path: '',
-        contents: listFilesAndDirectories(documentationDirectory),
+        contents: listFilesAndDirectories(DOCUMENTATION_DIRECTORY),
       },
     ]
 
@@ -72,15 +83,14 @@ export const addOneDocument = (request, response) => {
 }
 
 export const newFolder = (request, response) => {
-  const { folderName, folderPath } = request.body
+  const { folderName, folderPath = '' } = request.body
 
   if (!folderName) {
     return response.status(400).json({ message: 'Folder name is required' })
   }
+  const userFolderPath = path.join(folderPath, folderName)
 
-  let newFolderPath = folderPath
-    ? path.join(__dirname, storageFolder, folderPath, folderName)
-    : path.join(__dirname, storageFolder, folderName)
+  let newFolderPath = getSafeUserPath(userFolderPath)
 
   if (fs.existsSync(newFolderPath)) {
     return response.status(400).json({ message: 'Folder already exists' })
@@ -102,11 +112,10 @@ export const deleteFile = (request, response) => {
     return response.status(400).json({ message: 'File path is required' })
   }
 
-  const baseDirectory = path.join(__dirname, storageFolder) // root docs folder
-  const targetPath = path.join(baseDirectory, filePath)
+  const targetPath = path.join(DOCUMENTATION_DIRECTORY, filePath)
   const normalizedPath = path.normalize(targetPath)
 
-  if (!normalizedPath.startsWith(baseDirectory)) {
+  if (!normalizedPath.startsWith(DOCUMENTATION_DIRECTORY)) {
     return response.status(403).json({ message: 'Unauthorized path' })
   }
 
@@ -135,11 +144,10 @@ export const deleteItem = (request, response) => {
     return response.status(400).json({ message: 'Path is required' })
   }
 
-  const baseDirectory = path.join(__dirname, storageFolder)
-  const targetPath = path.join(baseDirectory, itemPath)
+  const targetPath = path.join(DOCUMENTATION_DIRECTORY, itemPath)
   const normalizedPath = path.normalize(targetPath)
 
-  if (!normalizedPath.startsWith(baseDirectory)) {
+  if (!normalizedPath.startsWith(DOCUMENTATION_DIRECTORY)) {
     return response.status(403).json({ message: 'Unauthorized path' })
   }
 
@@ -196,11 +204,10 @@ export const renameItem = (request, response) => {
       .json({ message: 'New name contains invalid characters' })
   }
 
-  const baseDirectory = path.join(__dirname, storageFolder)
-  const targetPath = path.join(baseDirectory, itemPath)
+  const targetPath = path.join(DOCUMENTATION_DIRECTORY, itemPath)
   const normalizedPath = path.normalize(targetPath)
 
-  if (!normalizedPath.startsWith(baseDirectory)) {
+  if (!normalizedPath.startsWith(DOCUMENTATION_DIRECTORY)) {
     return response.status(403).json({ message: 'Unauthorized path' })
   }
 
