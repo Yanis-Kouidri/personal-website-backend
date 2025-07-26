@@ -196,7 +196,7 @@ export const renameItem = (request, response) => {
     return response.status(400).json({ message: 'Item path is required' })
   }
   if (!itemPath) {
-    return response.status(400).json({ message: "You can't rename root" })
+    return response.status(401).json({ message: "You can't rename root" })
   }
   if (/[/\\]/.test(newName)) {
     return response
