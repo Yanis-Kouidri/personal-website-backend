@@ -45,9 +45,7 @@ const documentationFileFilter = (request, file, callback) => {
 }
 
 export const errorHandler = (error, request, response, next) => {
-  if (error instanceof multer.MulterError) {
-    return response.status(400).json({ message: error.message })
-  } else if (error) {
+  if (error) {
     return response.status(400).json({ message: error.message })
   }
   next()

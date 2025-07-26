@@ -1,4 +1,4 @@
-// tests/validateEnvironmentVariables.test.ts
+// tests/validateEnvironmentVariables.test.js
 import validateEnvironmentVariables from '../../src/utils/validate-environment-variables'
 
 describe('validateEnvironmentVariables', () => {

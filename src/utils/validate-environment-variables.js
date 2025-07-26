@@ -19,7 +19,7 @@ function validateEnvironmentVariables() {
   ]
 
   const missingEnvironmentVariables = requiredEnvironmentVariables.filter(
-    (environmentVarriable) => !process.env[environmentVarriable]
+    (environmentVariable) => !process.env[environmentVariable]
   )
 
   if (missingEnvironmentVariables.length > 0) {

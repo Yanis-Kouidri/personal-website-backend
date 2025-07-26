@@ -243,7 +243,7 @@ export const renameItem = (request, response) => {
       message: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} successfully renamed`,
     })
   } catch (error) {
-    console.error('Erro renaming item:', error)
+    console.error('Error renaming item:', error)
     return response.status(500).json({ message: 'Internal server error' })
   }
 }
