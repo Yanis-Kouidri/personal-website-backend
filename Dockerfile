@@ -17,6 +17,10 @@ RUN yarn workspaces focus --production
 
 COPY src ./src
 
+
+RUN mkdir -p /app/data && chown -R nobody:nogroup /app/data
+
+
 USER nobody
 
 CMD ["dumb-init", "node", "--require", "./.pnp.cjs", "--loader", "./.pnp.loader.mjs" , "src/server.js"]
