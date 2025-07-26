@@ -32,7 +32,7 @@ export const login = (request, response) => {
           secure: true,
           sameSite: 'None',
           maxAge: 60 * 60 * 1000, // 1h in ms
-          partitioned: true,
+          //partitioned: true,
         })
         return response
           .status(200)
@@ -89,6 +89,7 @@ export const logout = (request, response) => {
     httpOnly: true,
     secure: true,
     sameSite: 'None',
+    path: '/',
   })
   response.status(200).json({ message: 'Log-out successful' })
 }
