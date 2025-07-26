@@ -54,4 +54,7 @@ export const errorHandler = (error, request, response, next) => {
 export const documentUpload = multer({
   storage: storage,
   fileFilter: documentationFileFilter,
+  limits: {
+    fileSize: 8_000_000, // 8MB
+  },
 })
