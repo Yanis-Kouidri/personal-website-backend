@@ -4,11 +4,13 @@ on:
   push:
     branches: [dev]
   pull_request:
-    branches: [dev]
+    branches: [dev, main]
+    types: [opened, synchronize, reopened]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: build
     permissions:
       contents: read
       packages: write
@@ -44,6 +46,11 @@ jobs:
 
       - name: Tests unitaires
         run: yarn test
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Retire
         run: yarn retire
