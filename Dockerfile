@@ -17,4 +17,6 @@ RUN yarn workspaces focus --production
 
 COPY src ./src
 
+USER nobody
+
 CMD ["dumb-init", "node", "--require", "./.pnp.cjs", "--loader", "./.pnp.loader.mjs" , "src/server.js"]
