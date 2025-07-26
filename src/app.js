@@ -13,7 +13,11 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const app = express()
+
+app.disable('x-powered-by') // Avoid information disclosure
+
 app.use(express.json())
+
 app.use((error, request, response, next) => {
   if (error instanceof SyntaxError && error.status === 400 && 'body' in error) {
     console.error('Malformed JSON:', error.message)
