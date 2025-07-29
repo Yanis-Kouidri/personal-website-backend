@@ -13,12 +13,14 @@ export default defineConfig([
   globalIgnores(['dist', '.yarn', '.pnp.*', 'eslint.config.js', 'coverage']),
   {
     files: ['**/*.{js,mjs,cjs}'],
-    plugins: { js },
-    extends: ['js/recommended'],
     languageOptions: {
-      globals: { ...globals.node, ...globals.jest },
-      sourceType: 'module',
       parser: babelParser,
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        ...globals.jest,
+        ...globals.node,
+      },
     },
   },
   nodePlugin.configs['flat/recommended'],
@@ -27,4 +29,32 @@ export default defineConfig([
   eslintConfigPrettier,
   pluginSecurity.configs.recommended,
   eslintPluginUnicorn.configs.recommended,
+  js.configs.recommended,
+
+  {
+    files: ['**/*.{js,mjs,cjs}'],
+    plugins: { importPlugin },
+    rules: {
+      'import/order': [
+        'warn',
+        {
+          groups: [
+            'builtin', // ex: fs, path, etc.
+            'external', // ex: express, mongoose
+            'internal', // alias internes via tsconfig ou chemins relatifs
+            'parent', // ../
+            'sibling', // ./
+            'index', // ./index.js
+            'object', // import foo = require('foo') (rare)
+            'type', // import type { Foo } from '...'
+          ],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
+    },
+  },
 ])

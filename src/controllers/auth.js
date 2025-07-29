@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+
 import User from '../models/user.js'
 
 const NODE_JS_JWT_SECRET = process.env.NODE_JS_JWT_SECRET

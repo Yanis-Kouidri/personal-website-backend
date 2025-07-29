@@ -1,7 +1,8 @@
 import express from 'express'
+
 import * as authCtrl from '../controllers/auth.js'
-import { loginLimiter, tokenVerifLimiter } from '../middlewares/rate-limiter.js'
 import authentication from '../middlewares/authentication.js'
+import { loginLimiter, tokenVerifLimiter } from '../middlewares/rate-limiter.js'
 import { validateBody } from '../middlewares/validate-body.js'
 import { loginSchema, signupSchema } from '../schemas/auth-schemas.js'
 

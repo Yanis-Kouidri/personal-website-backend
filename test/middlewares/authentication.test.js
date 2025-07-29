@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
-import authentication from '../../src/middlewares/authentication.js'
+
 import { TOKEN_COOKIE_NAME } from '../../src/controllers/auth.js'
+import authentication from '../../src/middlewares/authentication.js'
 
 // mock env variable inside the test (will no use .env file value because it's override here)
 process.env.NODE_JS_JWT_SECRET = 'testsecret'

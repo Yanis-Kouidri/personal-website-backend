@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+
 import { TOKEN_COOKIE_NAME } from '../controllers/auth.js'
 
 function authentication(request, response, next) {

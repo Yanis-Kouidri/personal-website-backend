@@ -1,10 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import path from 'node:path'
 import fs from 'node:fs'
+import path from 'node:path'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const DOCUMENTATION_DIRECTORY = path.join(__dirname, '../../data/docs')
+const dirname = import.meta.dirname
+const DOCUMENTATION_DIRECTORY = path.join(dirname, '../../data/docs')
 
 function getSafeUserPath(userPath) {
   const fullPath = path.join(DOCUMENTATION_DIRECTORY, userPath)

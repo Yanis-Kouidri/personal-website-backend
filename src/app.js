@@ -1,16 +1,16 @@
-import express from 'express'
-import mongoose from 'mongoose'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import documentationRoutes from './routes/documentation.js'
-import authRoutes from './routes/auth.js'
-import authentication from './middlewares/authentication.js'
+
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+import express from 'express'
+import mongoose from 'mongoose'
+
+import authentication from './middlewares/authentication.js'
+import authRoutes from './routes/auth.js'
+import documentationRoutes from './routes/documentation.js'
 import checkEnvironmentVariables from './utils/validate-environment-variables.js'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const dirname = import.meta.dirname
 
 const app = express()
 
@@ -82,7 +82,7 @@ app.use(cors(corsOptions))
 app.use('/api/docs', documentationRoutes)
 app.use('/api/auth', authRoutes)
 
-app.use('/data/docs', express.static(path.join(__dirname, '../data/docs')))
+app.use('/data/docs', express.static(path.join(dirname, '../data/docs')))
 
 app.get('/protected-route', authentication, (request, response) => {
   response.json({ message: 'Access granted', user: request.user })

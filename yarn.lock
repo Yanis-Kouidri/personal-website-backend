@@ -1267,7 +1267,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/template@npm:^7.27.1, @babel/template@npm:^7.27.2":
+"@babel/template@npm:^7.25.9, @babel/template@npm:^7.27.1, @babel/template@npm:^7.27.2":
   version: 7.27.2
   resolution: "@babel/template@npm:7.27.2"
   dependencies:
@@ -2526,6 +2526,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"babel-plugin-transform-import-meta@npm:^2.3.3":
+  version: 2.3.3
+  resolution: "babel-plugin-transform-import-meta@npm:2.3.3"
+  dependencies:
+    "@babel/template": "npm:^7.25.9"
+    tslib: "npm:^2.8.1"
+  peerDependencies:
+    "@babel/core": ^7.10.0
+  checksum: 10c0/184275ef4f1c14a79e46fa2084e5743fbcfbaa52a9372f713e0e97e45aab4ac5be214c7eb4893fb9ea0088d32913772651776c660bee38bd2c8d52ef92750c07
+  languageName: node
+  linkType: hard
+
 "babel-preset-current-node-syntax@npm:^1.1.0":
   version: 1.1.0
   resolution: "babel-preset-current-node-syntax@npm:1.1.0"
@@ -2572,6 +2584,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.28.0"
     "@eslint/js": "npm:^9.31.0"
     babel-jest: "npm:^30.0.4"
+    babel-plugin-transform-import-meta: "npm:^2.3.3"
     bcrypt: "npm:^6.0.0"
     cookie-parser: "npm:^1.4.7"
     cors: "npm:^2.8.5"
@@ -2586,7 +2599,7 @@ __metadata:
     express: "npm:^5.1.0"
     express-rate-limit: "npm:^8.0.1"
     globals: "npm:^16.3.0"
-    jest: "npm:^30.0.4"
+    jest: "npm:^30.0.5"
     jsonwebtoken: "npm:^9.0.2"
     mongoose: "npm:^8.16.4"
     multer: "npm:^2.0.2"
@@ -5292,7 +5305,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^30.0.4":
+"jest@npm:^30.0.5":
   version: 30.0.5
   resolution: "jest@npm:30.0.5"
   dependencies:
@@ -7408,7 +7421,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.1, tslib@npm:^2.4.0":
+"tslib@npm:^2.0.1, tslib@npm:^2.4.0, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62
