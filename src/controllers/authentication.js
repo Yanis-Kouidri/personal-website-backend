@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken'
 
 import User from '../models/user.js'
 
-const NODE_JS_JWT_SECRET = process.env.NODE_JS_JWT_SECRET
 export const TOKEN_COOKIE_NAME = 'jwt'
 
 export const login = (request, response) => {
@@ -23,7 +22,7 @@ export const login = (request, response) => {
         }
         const token = jwt.sign(
           { id: user._id, username: username },
-          NODE_JS_JWT_SECRET,
+          process.env.NODE_JS_JWT_SECRET,
           {
             expiresIn: '24h',
           }
