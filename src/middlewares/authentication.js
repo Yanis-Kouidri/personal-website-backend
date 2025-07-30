@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 
-import { TOKEN_COOKIE_NAME } from '../controllers/auth.js'
+import { TOKEN_COOKIE_NAME } from '../controllers/authentication.js'
 
 function authentication(request, response, next) {
   const token = request.cookies[TOKEN_COOKIE_NAME]

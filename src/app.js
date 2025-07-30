@@ -6,7 +6,7 @@ import express from 'express'
 import mongoose from 'mongoose'
 
 import authentication from './middlewares/authentication.js'
-import authRoutes from './routes/auth.js'
+import authenticationRoutes from './routes/authentication.js'
 import documentationRoutes from './routes/documentation.js'
 import checkEnvironmentVariables from './utils/validate-environment-variables.js'
 
@@ -80,7 +80,7 @@ const corsOptions = {
 app.use(cors(corsOptions))
 
 app.use('/api/docs', documentationRoutes)
-app.use('/api/auth', authRoutes)
+app.use('/api/auth', authenticationRoutes)
 
 app.use('/data/docs', express.static(path.join(dirname, '../data/docs')))
 
