@@ -126,4 +126,87 @@ describe('authentication login controller', () => {
       message: 'Invalid credentials',
     })
   })
+
+  it('shoud retun 500 when data base connextion failed', async () => {
+    User.findOne.mockRejectedValue(new Error('Database error'))
+
+    await login(mockRequest, mockResponse)
+
+    expect(User.findOne).toHaveBeenCalledWith({
+      username: mockRequest.body.username,
+    })
+
+    expect(bcrypt.compare).not.toHaveBeenCalled()
+    expect(jwt.sign).not.toHaveBeenCalled()
+
+    expect(mockResponse.cookie).not.toHaveBeenCalled()
+    expect(mockResponse.status).toHaveBeenCalledWith(500)
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      message: 'Internal server error',
+    })
+  })
+
+  it('shoud retun 500 when bcrypt failed', async () => {
+    const mockUser = {
+      _id: '56789',
+      username: 'testuser',
+      password: 'hashedpassword',
+    }
+    User.findOne.mockResolvedValue(mockUser)
+    bcrypt.compare.mockRejectedValue(new Error('Bcrypt error'))
+
+    await login(mockRequest, mockResponse)
+
+    expect(User.findOne).toHaveBeenCalledWith({
+      username: mockRequest.body.username,
+    })
+
+    expect(bcrypt.compare).toHaveBeenCalledWith(
+      mockRequest.body.password,
+      mockUser.password
+    )
+    expect(jwt.sign).not.toHaveBeenCalled()
+
+    expect(mockResponse.cookie).not.toHaveBeenCalled()
+    expect(mockResponse.status).toHaveBeenCalledWith(500)
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      message: 'Internal server error',
+    })
+  })
+
+  it('shoud retun 500 when jwt failed', async () => {
+    const mockUser = {
+      _id: '56789',
+      username: 'testuser',
+      password: 'hashedpassword',
+    }
+    User.findOne.mockResolvedValue(mockUser)
+    bcrypt.compare.mockResolvedValue(true)
+    jwt.sign.mockImplementation(() => {
+      throw new Error('JWT error')
+    })
+
+    await login(mockRequest, mockResponse)
+
+    expect(User.findOne).toHaveBeenCalledWith({
+      username: mockRequest.body.username,
+    })
+
+    expect(bcrypt.compare).toHaveBeenCalledWith(
+      mockRequest.body.password,
+      mockUser.password
+    )
+
+    expect(jwt.sign).toHaveBeenCalledWith(
+      { id: mockUser._id, username: mockUser.username },
+      process.env.NODE_JS_JWT_SECRET,
+      { expiresIn: '24h' }
+    )
+
+    expect(mockResponse.cookie).not.toHaveBeenCalled()
+    expect(mockResponse.status).toHaveBeenCalledWith(500)
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      message: 'Internal server error',
+    })
+  })
 })
