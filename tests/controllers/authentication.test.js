@@ -82,4 +82,48 @@ describe('authentication login controller', () => {
       username: 'testuser',
     })
   })
+
+  it('shoud return 401 when the user does not exist', async () => {
+    User.findOne.mockResolvedValue() // Mock not to find user
+
+    await login(mockRequest, mockResponse)
+
+    expect(User.findOne).toHaveBeenCalledWith({ username: 'testuser' })
+    expect(bcrypt.compare).not.toHaveBeenCalled()
+    expect(jwt.sign).not.toHaveBeenCalled()
+
+    expect(mockResponse.cookie).not.toHaveBeenCalled()
+    expect(mockResponse.status).toHaveBeenCalledWith(401)
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      message: 'Invalid credentials',
+    })
+  })
+
+  it('shoud return 401 when the password is incorrect', async () => {
+    const mockUser = {
+      _id: '56789',
+      username: 'testuser',
+      password: 'hashedpassword',
+    }
+
+    User.findOne.mockResolvedValue(mockUser)
+    bcrypt.compare.mockResolvedValue(false) // Mock wrong password
+
+    await login(mockRequest, mockResponse)
+
+    expect(User.findOne).toHaveBeenCalledWith({
+      username: mockRequest.body.username,
+    })
+    expect(bcrypt.compare).toHaveBeenCalledWith(
+      mockRequest.body.password,
+      mockUser.password
+    )
+    expect(jwt.sign).not.toHaveBeenCalled()
+
+    expect(mockResponse.cookie).not.toHaveBeenCalled()
+    expect(mockResponse.status).toHaveBeenCalledWith(401)
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      message: 'Invalid credentials',
+    })
+  })
 })
