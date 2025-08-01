@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken'
 
 import {
   login,
+  logout,
+  me,
   signup,
   TOKEN_COOKIE_NAME,
 } from '../../src/controllers/authentication.js'
@@ -226,7 +228,7 @@ describe('test signup controller', () => {
       body: {
         username: 'test_user',
         password: 'test_password',
-        signupKey: 'test_signupkey',
+        signupKey: process.env.NODE_JS_SIGN_UP_KEY,
       },
     }
 
@@ -254,5 +256,117 @@ describe('test signup controller', () => {
       message: 'User successfully created',
     })
     expect(mockResponse.status).toHaveBeenCalledWith(201)
+  })
+
+  it('should return 401 if wrong signup key', async () => {
+    User.findOne.mockResolvedValue() //No user found, signup ok
+    bcrypt.hash.mockResolvedValue('hashed_password')
+    mockRequest.body.signupKey = 'wrong_signup_key'
+
+    await signup(mockRequest, mockResponse)
+
+    expect(User.findOne).not.toHaveBeenCalled()
+    expect(bcrypt.hash).not.toHaveBeenCalled()
+
+    expect(mockResponse.status).toHaveBeenCalledWith(401)
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      message: 'Unauthorized sign-up',
+    })
+  })
+
+  it('should return 401 if user already exist', async () => {
+    User.findOne.mockResolvedValue({ something: 'someone' }) // User found, signup KO
+    bcrypt.hash.mockResolvedValue('hashed_password')
+
+    await signup(mockRequest, mockResponse)
+
+    expect(User.findOne).toHaveBeenCalledWith({
+      username: mockRequest.body.username,
+    })
+    expect(bcrypt.hash).not.toHaveBeenCalled()
+
+    expect(mockResponse.status).toHaveBeenCalledWith(401)
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      message: 'Unauthorized sign-up',
+    })
+  })
+
+  it('should return 500 if data base throws an error', async () => {
+    User.findOne.mockImplementation(() => {
+      throw new Error('Data base Error')
+    })
+    bcrypt.hash.mockResolvedValue('hashed_password')
+
+    await signup(mockRequest, mockResponse)
+
+    expect(User.findOne).toHaveBeenCalledWith({
+      username: mockRequest.body.username,
+    })
+    expect(bcrypt.hash).not.toHaveBeenCalled()
+
+    expect(mockResponse.status).toHaveBeenCalledWith(500)
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      message: 'Internal server error',
+    })
+  })
+})
+
+describe('test me controller', () => {
+  let mockRequest
+  let mockResponse
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+
+    mockRequest = {
+      tokenData: {
+        username: 'test_user',
+      },
+    }
+
+    mockResponse = {
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    }
+  })
+
+  it('should return 200', () => {
+    me(mockRequest, mockResponse)
+
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      user: mockRequest.tokenData.username,
+    })
+    expect(mockResponse.status).toHaveBeenCalledWith(200)
+  })
+})
+
+describe('test logout controller', () => {
+  let mockRequest
+  let mockResponse
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+
+    mockResponse = {
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+      clearCookie: jest.fn().mockReturnThis(),
+    }
+  })
+
+  it('should return 200', () => {
+    logout(mockRequest, mockResponse)
+
+    expect(mockResponse.clearCookie).toHaveBeenCalledWith(TOKEN_COOKIE_NAME, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      path: '/',
+    })
+
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      message: 'Log-out successful',
+    })
+    expect(mockResponse.status).toHaveBeenCalledWith(200)
   })
 })
