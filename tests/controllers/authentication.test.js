@@ -241,7 +241,7 @@ describe('test signup controller', () => {
   it('should return 200 if valid credentials', async () => {
     User.findOne.mockResolvedValue() //No user found, signup ok
     bcrypt.hash.mockResolvedValue('hashed_password')
-    //User.save.mockResolvedValue()
+    User.prototype.save.mockResolvedValue()
 
     await signup(mockRequest, mockResponse)
 
@@ -250,7 +250,7 @@ describe('test signup controller', () => {
     })
     expect(bcrypt.hash).toHaveBeenCalledWith(mockRequest.body.password, 10)
 
-    //expect(User.save).toHaveBeenCalled()
+    expect(User.prototype.save).toHaveBeenCalledTimes(1)
 
     expect(mockResponse.json).toHaveBeenCalledWith({
       message: 'User successfully created',
@@ -368,5 +368,7 @@ describe('test logout controller', () => {
       message: 'Log-out successful',
     })
     expect(mockResponse.status).toHaveBeenCalledWith(200)
+    expect(mockResponse.clearCookie).toHaveBeenCalledBefore(mockResponse.json)
+    expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.json)
   })
 })
