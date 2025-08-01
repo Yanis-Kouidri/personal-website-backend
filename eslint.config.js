@@ -8,6 +8,7 @@ import pluginPromise from 'eslint-plugin-promise'
 import eslintConfigPrettier from 'eslint-config-prettier/flat'
 import pluginSecurity from 'eslint-plugin-security'
 import eslintPluginUnicorn from 'eslint-plugin-unicorn'
+import jestExtendedPlugin from 'eslint-plugin-jest-extended'
 
 export default defineConfig([
   globalIgnores(['dist', '.yarn', '.pnp.*', 'eslint.config.js', 'coverage']),
@@ -30,6 +31,7 @@ export default defineConfig([
   pluginSecurity.configs.recommended,
   eslintPluginUnicorn.configs.recommended,
   js.configs.recommended,
+  jestExtendedPlugin.configs['flat/all'],
 
   {
     files: ['**/*.{js,mjs,cjs}'],
