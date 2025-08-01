@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 
 import {
   login,
+  signup,
   TOKEN_COOKIE_NAME,
 } from '../../src/controllers/authentication.js'
 import User from '../../src/models/user.js'
@@ -14,7 +15,8 @@ jest.mock('jsonwebtoken')
 jest.mock('../../src/models/user.js')
 
 // Mock environment variable
-process.env.NODE_JS_JWT_SECRET = 'testsecret'
+process.env.NODE_JS_JWT_SECRET = 'test_secret'
+process.env.NODE_JS_SIGN_UP_KEY = 'test_signupkey'
 
 describe('authentication login controller', () => {
   let mockRequest
@@ -56,14 +58,14 @@ describe('authentication login controller', () => {
     await login(mockRequest, mockResponse)
 
     // Assert
-    expect(User.findOne).toHaveBeenCalledWith({ username: 'testuser' })
+    expect(User.findOne).toHaveBeenCalledWith({ username: mockUser.username })
     expect(bcrypt.compare).toHaveBeenCalledWith(
-      'testpassword',
-      'hashedpassword'
+      mockRequest.body.password,
+      mockUser.password
     )
     expect(jwt.sign).toHaveBeenCalledWith(
-      { id: '12345', username: 'testuser' },
-      'testsecret',
+      { id: mockUser._id, username: mockUser.username },
+      process.env.NODE_JS_JWT_SECRET,
       { expiresIn: '24h' }
     )
     expect(mockResponse.cookie).toHaveBeenCalledWith(
@@ -79,7 +81,7 @@ describe('authentication login controller', () => {
     expect(mockResponse.status).toHaveBeenCalledWith(200)
     expect(mockResponse.json).toHaveBeenCalledWith({
       message: 'Log-in successful',
-      username: 'testuser',
+      username: mockRequest.body.username,
     })
   })
 
@@ -88,7 +90,9 @@ describe('authentication login controller', () => {
 
     await login(mockRequest, mockResponse)
 
-    expect(User.findOne).toHaveBeenCalledWith({ username: 'testuser' })
+    expect(User.findOne).toHaveBeenCalledWith({
+      username: mockRequest.body.username,
+    })
     expect(bcrypt.compare).not.toHaveBeenCalled()
     expect(jwt.sign).not.toHaveBeenCalled()
 
@@ -208,5 +212,47 @@ describe('authentication login controller', () => {
     expect(mockResponse.json).toHaveBeenCalledWith({
       message: 'Internal server error',
     })
+  })
+})
+
+describe('test signup controller', () => {
+  let mockRequest
+  let mockResponse
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+
+    mockRequest = {
+      body: {
+        username: 'test_user',
+        password: 'test_password',
+        signupKey: 'test_signupkey',
+      },
+    }
+
+    mockResponse = {
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    }
+  })
+
+  it('should return 200 if valid credentials', async () => {
+    User.findOne.mockResolvedValue() //No user found, signup ok
+    bcrypt.hash.mockResolvedValue('hashed_password')
+    //User.save.mockResolvedValue()
+
+    await signup(mockRequest, mockResponse)
+
+    expect(User.findOne).toHaveBeenCalledWith({
+      username: mockRequest.body.username,
+    })
+    expect(bcrypt.hash).toHaveBeenCalledWith(mockRequest.body.password, 10)
+
+    //expect(User.save).toHaveBeenCalled()
+
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      message: 'User successfully created',
+    })
+    expect(mockResponse.status).toHaveBeenCalledWith(201)
   })
 })

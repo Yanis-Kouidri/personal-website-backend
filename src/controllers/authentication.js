@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import User from '../models/user.js'
 
 export const TOKEN_COOKIE_NAME = 'jwt'
+const NUMBER_OF_HASH_ROUNDS = 10
 
 export const login = (request, response) => {
   const errorMessage = 'Invalid credentials'
@@ -48,12 +49,11 @@ export const login = (request, response) => {
 export const signup = async (request, response) => {
   try {
     const errorMessage = 'Unauthorized sign-up'
-    const serverSignupKey = process.env.NODE_JS_SIGN_UP_KEY
 
     const { username, password, signupKey } = request.body // Already validated
 
     // Check sign-up key
-    if (signupKey !== serverSignupKey) {
+    if (signupKey !== process.env.NODE_JS_SIGN_UP_KEY) {
       console.log('Wrong sign-up key')
       return response.status(401).json({ message: errorMessage })
     }
@@ -65,7 +65,7 @@ export const signup = async (request, response) => {
       return response.status(401).json({ message: errorMessage })
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const hashedPassword = await bcrypt.hash(password, NUMBER_OF_HASH_ROUNDS)
 
     const user = new User({
       username: username,
