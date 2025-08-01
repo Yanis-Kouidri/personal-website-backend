@@ -250,7 +250,7 @@ describe('test signup controller', () => {
     })
     expect(bcrypt.hash).toHaveBeenCalledWith(mockRequest.body.password, 10)
 
-    expect(User.prototype.save).toHaveBeenCalledTimes(1)
+    expect(User.prototype.save).toHaveBeenCalledOnce()
 
     expect(mockResponse.json).toHaveBeenCalledWith({
       message: 'User successfully created',
