@@ -1,53 +1,15 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-const dirname = import.meta.dirname
-const DOCUMENTATION_DIRECTORY = path.join(dirname, '../../data/docs')
-
-function getSafeUserPath(userPath) {
-  const fullPath = path.join(DOCUMENTATION_DIRECTORY, userPath)
-  const resolvedPath = path.resolve(fullPath)
-  if (!resolvedPath.startsWith(DOCUMENTATION_DIRECTORY)) {
-    throw new Error('Invalid path')
-  }
-  if (path.basename(userPath).startsWith('.')) {
-    throw new Error('Access to hidden files is forbidden')
-  }
-
-  return resolvedPath
-}
+import {
+  DOCUMENTATION_DIRECTORY,
+  listFilesAndDirectories,
+  getSafeUserPath,
+} from '../utils/path'
 
 export const getAllDocumentation = (request, response) => {
   if (!fs.existsSync(DOCUMENTATION_DIRECTORY)) {
     fs.mkdirSync(DOCUMENTATION_DIRECTORY, { recursive: true })
-  }
-
-  const listFilesAndDirectories = (directory) => {
-    let result = []
-    const items = fs.readdirSync(directory)
-
-    for (const item of items) {
-      const fullPath = path.join(directory, item)
-      const relativePath = path.relative(DOCUMENTATION_DIRECTORY, fullPath)
-      const stats = fs.statSync(fullPath)
-
-      if (stats.isDirectory()) {
-        result.push({
-          type: 'directory',
-          name: item,
-          path: relativePath,
-          contents: listFilesAndDirectories(fullPath),
-        })
-      } else {
-        result.push({
-          type: 'file',
-          name: item,
-          path: relativePath,
-        })
-      }
-    }
-
-    return result
   }
 
   try {
@@ -70,14 +32,10 @@ export const getAllDocumentation = (request, response) => {
 }
 
 export const addOneDocument = (request, response) => {
-  try {
-    if (!request.file) {
-      return response.status(400).json({ message: 'No file attached' })
-    }
-    response.status(200).json({ message: 'File uploaded !' })
-  } catch (error) {
-    return response.status(500).json({ message: 'Error: ' + error })
+  if (!request.file) {
+    return response.status(400).json({ message: 'No file attached' })
   }
+  response.status(200).json({ message: 'File uploaded !' })
 }
 
 export const newFolder = (request, response) => {
@@ -91,7 +49,7 @@ export const newFolder = (request, response) => {
   let newFolderPath = getSafeUserPath(userFolderPath)
 
   if (fs.existsSync(newFolderPath)) {
-    return response.status(400).json({ message: 'Folder already exists' })
+    return response.status(401).json({ message: 'Folder already exists' })
   }
 
   try {
@@ -99,38 +57,6 @@ export const newFolder = (request, response) => {
     return response.status(200).json({ message: 'Folder created successfully' })
   } catch (error) {
     console.error('Error creating folder:', error)
-    return response.status(500).json({ message: 'Internal server error' })
-  }
-}
-
-export const deleteFile = (request, response) => {
-  const { filePath } = request.body
-
-  if (!filePath) {
-    return response.status(400).json({ message: 'File path is required' })
-  }
-
-  const targetPath = path.join(DOCUMENTATION_DIRECTORY, filePath)
-  const normalizedPath = path.normalize(targetPath)
-
-  if (!normalizedPath.startsWith(DOCUMENTATION_DIRECTORY)) {
-    return response.status(403).json({ message: 'Unauthorized path' })
-  }
-
-  if (!fs.existsSync(normalizedPath)) {
-    return response.status(404).json({ message: 'File does not exist' })
-  }
-
-  const stat = fs.statSync(normalizedPath)
-  if (!stat.isFile()) {
-    return response.status(400).json({ message: 'Target is not a file' })
-  }
-
-  try {
-    fs.unlinkSync(normalizedPath)
-    return response.status(200).json({ message: 'File successfully deleted' })
-  } catch (error) {
-    console.error('Error deleting file:', error)
     return response.status(500).json({ message: 'Internal server error' })
   }
 }
@@ -143,11 +69,7 @@ export const deleteItem = (request, response) => {
   }
 
   const targetPath = path.join(DOCUMENTATION_DIRECTORY, itemPath)
-  const normalizedPath = path.normalize(targetPath)
-
-  if (!normalizedPath.startsWith(DOCUMENTATION_DIRECTORY)) {
-    return response.status(403).json({ message: 'Unauthorized path' })
-  }
+  const normalizedPath = getSafeUserPath(targetPath)
 
   if (!fs.existsSync(normalizedPath)) {
     return response.status(404).json({ message: 'Item does not exist' })
@@ -190,10 +112,10 @@ export const renameItem = (request, response) => {
   if (!newName) {
     return response.status(400).json({ message: 'Name is required' })
   }
-  if (itemPath === null) {
+  if (itemPath === undefined) {
     return response.status(400).json({ message: 'Item path is required' })
   }
-  if (!itemPath) {
+  if (itemPath === '') {
     return response.status(401).json({ message: "You can't rename root" })
   }
   if (/[/\\]/.test(newName)) {
@@ -203,11 +125,7 @@ export const renameItem = (request, response) => {
   }
 
   const targetPath = path.join(DOCUMENTATION_DIRECTORY, itemPath)
-  const normalizedPath = path.normalize(targetPath)
-
-  if (!normalizedPath.startsWith(DOCUMENTATION_DIRECTORY)) {
-    return response.status(403).json({ message: 'Unauthorized path' })
-  }
+  const normalizedPath = getSafeUserPath(targetPath)
 
   if (!fs.existsSync(normalizedPath)) {
     return response.status(404).json({ message: 'Item does not exist' })
@@ -229,7 +147,7 @@ export const renameItem = (request, response) => {
 
   const parentDirectory = path.dirname(normalizedPath)
   const newPath = path.join(parentDirectory, newName)
-  const normalizeNewPath = path.normalize(newPath)
+  const normalizeNewPath = getSafeUserPath(newPath)
 
   if (fs.existsSync(normalizeNewPath)) {
     return response.status(400).json({ message: 'New name already exists' })
