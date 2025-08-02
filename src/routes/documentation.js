@@ -6,6 +6,12 @@ import {
   documentUpload as documentationUpload,
   errorHandler,
 } from '../middlewares/multer.js'
+import { validateBody } from '../middlewares/validate-body.js'
+import {
+  deleteItemSchema,
+  newFolderSchema,
+  renameItemSchema,
+} from '../schemas/documentation-schemas.js'
 
 const router = express.Router()
 
@@ -19,10 +25,25 @@ router.post(
   documentationController.addOneDocument
 )
 
-router.post('/newfolder', authentication, documentationController.newFolder)
+router.post(
+  '/newfolder',
+  authentication,
+  validateBody(newFolderSchema),
+  documentationController.newFolder
+)
 
-router.delete('/', authentication, documentationController.deleteItem)
+router.delete(
+  '/',
+  authentication,
+  validateBody(deleteItemSchema),
+  documentationController.deleteItem
+)
 
-router.patch('/rename', authentication, documentationController.renameItem)
+router.patch(
+  '/rename',
+  authentication,
+  validateBody(renameItemSchema),
+  documentationController.renameItem
+)
 
 export default router

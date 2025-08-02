@@ -12,11 +12,11 @@ import {
   getSafeUserPath,
   listFilesAndDirectories,
   DOCUMENTATION_DIRECTORY,
-} from '../../src/utils/path'
+} from '../../src/utils/file-system-interaction'
 
 jest.mock('node:fs')
 jest.mock('node:path')
-jest.mock('../../src/utils/path')
+jest.mock('../../src/utils/file-system-interaction')
 
 describe('test getAllDocumentation controller', () => {
   let mockRequest, mockResponse
@@ -115,18 +115,6 @@ describe('test addOneDocument controller', () => {
     })
     expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.json)
   })
-
-  it('should return 400 if no file in request', () => {
-    mockRequest = {}
-
-    addOneDocument(mockRequest, mockResponse)
-
-    expect(mockResponse.status).toHaveBeenCalledWith(400)
-    expect(mockResponse.json).toHaveBeenCalledWith({
-      message: 'No file attached',
-    })
-    expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.json)
-  })
 })
 
 describe('test newFolder controller', () => {
@@ -160,43 +148,6 @@ describe('test newFolder controller', () => {
     expect(mockResponse.status).toHaveBeenCalledWith(200)
     expect(mockResponse.json).toHaveBeenCalledWith({
       message: 'Folder created successfully',
-    })
-    expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.json)
-  })
-
-  it('should return 200 without folderPath', () => {
-    mockRequest = {
-      body: {
-        folderName: 'mockName',
-      },
-    }
-    path.join.mockReturnValue('mockPath/mockName')
-    getSafeUserPath.mockReturnValue('mockPath/mockName')
-    fs.existsSync.mockReturnValue(false)
-    fs.mkdirSync.mockReturnValue()
-
-    newFolder(mockRequest, mockResponse)
-
-    expect(mockResponse.status).toHaveBeenCalledWith(200)
-    expect(mockResponse.json).toHaveBeenCalledWith({
-      message: 'Folder created successfully',
-    })
-    expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.json)
-  })
-
-  it('should return 400 if no folderName', () => {
-    mockRequest.body.folderName = ''
-
-    path.join.mockReturnValue('mockPath/mockName')
-    getSafeUserPath.mockReturnValue('mockPath/mockName')
-    fs.existsSync.mockReturnValue(false)
-    fs.mkdirSync.mockReturnValue()
-
-    newFolder(mockRequest, mockResponse)
-
-    expect(mockResponse.status).toHaveBeenCalledWith(400)
-    expect(mockResponse.json).toHaveBeenCalledWith({
-      message: 'Folder name is required',
     })
     expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.json)
   })
@@ -317,23 +268,6 @@ describe('test deleteItem controller', () => {
     expect(path.join).toHaveBeenCalledBefore(getSafeUserPath)
   })
 
-  it('should return 400 if path is not provided', () => {
-    mockRequest.body.path = undefined
-
-    deleteItem(mockRequest, mockResponse)
-
-    expect(path.join).not.toHaveBeenCalled()
-    expect(getSafeUserPath).not.toHaveBeenCalled()
-    expect(fs.existsSync).not.toHaveBeenCalled()
-    expect(fs.statSync).not.toHaveBeenCalled()
-    expect(fs.unlinkSync).not.toHaveBeenCalled()
-    expect(mockResponse.status).toHaveBeenCalledWith(400)
-    expect(mockResponse.json).toHaveBeenCalledWith({
-      message: 'Path is required',
-    })
-    expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.json)
-  })
-
   it('should return 200 when empty directory is successfully deleted', () => {
     const mockJoinPath = 'mockJoinPath'
     const safeUserPath = 'safeUserPath'
@@ -371,7 +305,7 @@ describe('test deleteItem controller', () => {
     expect(path.join).toHaveBeenCalledBefore(getSafeUserPath)
   })
 
-  it('should return 400 if directory is not empty', () => {
+  it('should return 401 if directory is not empty', () => {
     const mockJoinPath = 'mockJoinPath'
     const safeUserPath = 'safeUserPath'
 
@@ -395,7 +329,7 @@ describe('test deleteItem controller', () => {
     expect(fs.statSync).toHaveBeenCalledWith(safeUserPath)
     expect(fs.readdirSync).toHaveBeenCalledWith(safeUserPath)
     expect(fs.rmdirSync).not.toHaveBeenCalled()
-    expect(mockResponse.status).toHaveBeenCalledWith(400)
+    expect(mockResponse.status).toHaveBeenCalledWith(401)
     expect(mockResponse.json).toHaveBeenCalledWith({
       message: 'Folder is not empty',
     })
@@ -550,57 +484,6 @@ describe('test renameItem controller', () => {
 
   afterEach(() => {
     jest.clearAllMocks()
-  })
-
-  it('should return 400 if newName is not provided', () => {
-    mockRequest.body.newName = undefined
-
-    renameItem(mockRequest, mockResponse)
-
-    expect(path.join).not.toHaveBeenCalled()
-    expect(getSafeUserPath).not.toHaveBeenCalled()
-    expect(fs.existsSync).not.toHaveBeenCalled()
-    expect(fs.statSync).not.toHaveBeenCalled()
-    expect(fs.renameSync).not.toHaveBeenCalled()
-    expect(mockResponse.status).toHaveBeenCalledWith(400)
-    expect(mockResponse.json).toHaveBeenCalledWith({
-      message: 'Name is required',
-    })
-    expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.json)
-  })
-
-  it('should return 400 if itemPath is undefined', () => {
-    mockRequest.body.itemPath = undefined
-
-    renameItem(mockRequest, mockResponse)
-
-    expect(path.join).not.toHaveBeenCalled()
-    expect(getSafeUserPath).not.toHaveBeenCalled()
-    expect(fs.existsSync).not.toHaveBeenCalled()
-    expect(fs.statSync).not.toHaveBeenCalled()
-    expect(fs.renameSync).not.toHaveBeenCalled()
-    expect(mockResponse.status).toHaveBeenCalledWith(400)
-    expect(mockResponse.json).toHaveBeenCalledWith({
-      message: 'Item path is required',
-    })
-    expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.json)
-  })
-
-  it('should return 401 if itemPath is empty', () => {
-    mockRequest.body.itemPath = ''
-
-    renameItem(mockRequest, mockResponse)
-
-    expect(path.join).not.toHaveBeenCalled()
-    expect(getSafeUserPath).not.toHaveBeenCalled()
-    expect(fs.existsSync).not.toHaveBeenCalled()
-    expect(fs.statSync).not.toHaveBeenCalled()
-    expect(fs.renameSync).not.toHaveBeenCalled()
-    expect(mockResponse.status).toHaveBeenCalledWith(401)
-    expect(mockResponse.json).toHaveBeenCalledWith({
-      message: "You can't rename root",
-    })
-    expect(mockResponse.status).toHaveBeenCalledBefore(mockResponse.json)
   })
 
   it('should return 400 if newName contains invalid characters', () => {

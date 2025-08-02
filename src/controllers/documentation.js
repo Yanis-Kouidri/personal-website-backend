@@ -5,7 +5,7 @@ import {
   DOCUMENTATION_DIRECTORY,
   listFilesAndDirectories,
   getSafeUserPath,
-} from '../utils/path'
+} from '../utils/file-system-interaction.js'
 
 export const getAllDocumentation = (request, response) => {
   if (!fs.existsSync(DOCUMENTATION_DIRECTORY)) {
@@ -32,18 +32,12 @@ export const getAllDocumentation = (request, response) => {
 }
 
 export const addOneDocument = (request, response) => {
-  if (!request.file) {
-    return response.status(400).json({ message: 'No file attached' })
-  }
   response.status(200).json({ message: 'File uploaded !' })
 }
 
 export const newFolder = (request, response) => {
-  const { folderName, folderPath = '' } = request.body
+  const { folderName, folderPath } = request.body
 
-  if (!folderName) {
-    return response.status(400).json({ message: 'Folder name is required' })
-  }
   const userFolderPath = path.join(folderPath, folderName)
 
   let newFolderPath = getSafeUserPath(userFolderPath)
@@ -63,10 +57,6 @@ export const newFolder = (request, response) => {
 
 export const deleteItem = (request, response) => {
   const { path: itemPath } = request.body
-
-  if (!itemPath) {
-    return response.status(400).json({ message: 'Path is required' })
-  }
 
   const targetPath = path.join(DOCUMENTATION_DIRECTORY, itemPath)
   const normalizedPath = getSafeUserPath(targetPath)
@@ -89,7 +79,7 @@ export const deleteItem = (request, response) => {
     // Check if folder is empty
     const contents = fs.readdirSync(normalizedPath)
     if (contents.length > 0) {
-      return response.status(400).json({ message: 'Folder is not empty' })
+      return response.status(401).json({ message: 'Folder is not empty' })
     }
 
     try {
@@ -109,15 +99,6 @@ export const deleteItem = (request, response) => {
 export const renameItem = (request, response) => {
   const { itemPath, newName } = request.body
 
-  if (!newName) {
-    return response.status(400).json({ message: 'Name is required' })
-  }
-  if (itemPath === undefined) {
-    return response.status(400).json({ message: 'Item path is required' })
-  }
-  if (itemPath === '') {
-    return response.status(401).json({ message: "You can't rename root" })
-  }
   if (/[/\\]/.test(newName)) {
     return response
       .status(400)
