@@ -5,6 +5,7 @@ import {
   DOCUMENTATION_DIRECTORY,
   listFilesAndDirectories,
   getSafeUserPath,
+  verifyPath,
 } from '../utils/file-system-interaction.js'
 
 export const getAllDocumentation = (request, response) => {
@@ -58,8 +59,7 @@ export const newFolder = (request, response) => {
 export const deleteItem = (request, response) => {
   const { path: itemPath } = request.body
 
-  const targetPath = path.join(DOCUMENTATION_DIRECTORY, itemPath)
-  const normalizedPath = getSafeUserPath(targetPath)
+  const normalizedPath = getSafeUserPath(itemPath)
 
   if (!fs.existsSync(normalizedPath)) {
     return response.status(404).json({ message: 'Item does not exist' })
@@ -104,9 +104,7 @@ export const renameItem = (request, response) => {
       .status(400)
       .json({ message: 'New name contains invalid characters' })
   }
-
-  const targetPath = path.join(DOCUMENTATION_DIRECTORY, itemPath)
-  const normalizedPath = getSafeUserPath(targetPath)
+  const normalizedPath = getSafeUserPath(itemPath)
 
   if (!fs.existsSync(normalizedPath)) {
     return response.status(404).json({ message: 'Item does not exist' })
@@ -128,7 +126,7 @@ export const renameItem = (request, response) => {
 
   const parentDirectory = path.dirname(normalizedPath)
   const newPath = path.join(parentDirectory, newName)
-  const normalizeNewPath = getSafeUserPath(newPath)
+  const normalizeNewPath = verifyPath(newPath)
 
   if (fs.existsSync(normalizeNewPath)) {
     return response.status(400).json({ message: 'New name already exists' })

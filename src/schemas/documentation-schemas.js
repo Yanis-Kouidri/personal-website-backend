@@ -6,7 +6,7 @@ export const newFolderSchema = z.object({
 })
 
 export const deleteItemSchema = z.object({
-  itemPath: z.string().nonempty(),
+  path: z.string().nonempty(),
 })
 
 export const renameItemSchema = z.object({

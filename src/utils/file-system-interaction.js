@@ -6,7 +6,11 @@ export const DOCUMENTATION_DIRECTORY = path.join(dirname, '../../data/docs')
 
 export const getSafeUserPath = (userPath) => {
   const fullPath = path.join(DOCUMENTATION_DIRECTORY, userPath)
-  const resolvedPath = path.resolve(fullPath)
+  return verifyPath(fullPath)
+}
+
+export const verifyPath = (userPath) => {
+  const resolvedPath = path.resolve(userPath)
   if (!resolvedPath.startsWith(DOCUMENTATION_DIRECTORY)) {
     throw new Error('Invalid path')
   }
@@ -20,7 +24,6 @@ export const getSafeUserPath = (userPath) => {
 export const listFilesAndDirectories = (directory) => {
   let result = []
   const items = fs.readdirSync(directory)
-  console.log(items)
   for (const item of items) {
     const fullPath = path.join(directory, item)
     const relativePath = path.relative(DOCUMENTATION_DIRECTORY, fullPath)
