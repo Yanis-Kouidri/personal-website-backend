@@ -75,4 +75,29 @@ describe('validateBody middleware', () => {
     process.env.NODE_ENV = originalEnvironment
     consoleWarnMock.mockRestore()
   })
+
+  it('should not log validation error in production environment', () => {
+    const originalEnvironment = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+
+    const errorFormatMock = jest.fn().mockReturnValue('formatted error') // Mock pour retourner une valeur définie
+    mockSafeParse.mockReturnValue({
+      success: false,
+      error: { format: errorFormatMock },
+    })
+
+    const consoleWarnMock = jest
+      .spyOn(console, 'warn')
+      .mockImplementation(() => {})
+
+    const middleware = validateBody(mockSchema)
+    middleware(request, response, next)
+
+    expect(errorFormatMock).not.toHaveBeenCalled()
+    expect(consoleWarnMock).not.toHaveBeenCalled()
+
+    // Restaurer l'environnement original
+    process.env.NODE_ENV = originalEnvironment
+    consoleWarnMock.mockRestore()
+  })
 })
