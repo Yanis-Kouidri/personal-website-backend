@@ -3,6 +3,7 @@ import path from 'node:path'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
+import helmet from 'helmet'
 import mongoose from 'mongoose'
 
 import authentication from './middlewares/authentication.js'
@@ -15,7 +16,7 @@ const dirname = import.meta.dirname
 
 const app = express()
 
-app.disable('x-powered-by') // Avoid information disclosure
+app.use(helmet())
 
 app.use(express.json())
 
