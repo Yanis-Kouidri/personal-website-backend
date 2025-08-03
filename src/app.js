@@ -6,6 +6,7 @@ import express from 'express'
 import mongoose from 'mongoose'
 
 import authentication from './middlewares/authentication.js'
+import jsonErrorHandler from './middlewares/json-error-handler.js'
 import authenticationRoutes from './routes/authentication.js'
 import documentationRoutes from './routes/documentation.js'
 import checkEnvironmentVariables from './utils/validate-environment-variables.js'
@@ -18,13 +19,7 @@ app.disable('x-powered-by') // Avoid information disclosure
 
 app.use(express.json())
 
-app.use((error, request, response, next) => {
-  if (error instanceof SyntaxError && error.status === 400 && 'body' in error) {
-    console.error('Malformed JSON:', error.message)
-    return response.status(400).json({ message: 'Invalid JSON' })
-  }
-  next(error)
-})
+app.use(jsonErrorHandler)
 
 app.use(cookieParser())
 
