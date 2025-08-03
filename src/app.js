@@ -50,9 +50,13 @@ console.log('Mongodb URI: ' + mongodbUrl)
 
 try {
   await mongoose.connect(mongodbUrl)
-  console.log('Connection to mongodb database successed')
+  console.log('Connection to mongodb database succeeded')
 } catch (error) {
-  console.error('Connexion failed: ' + error)
+  if (process.env.NODE_ENV === 'development') {
+    console.error('Connection failed: ' + error)
+  } else {
+    console.error('Connection to mongodb database failed')
+  }
 }
 
 const cors_origin =
