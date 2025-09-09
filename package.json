@@ -24,7 +24,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon",
-    "lint": "pnx eslint .",
+    "lint": "npx eslint .",
     "test": "jest"
   },
   "devDependencies": {

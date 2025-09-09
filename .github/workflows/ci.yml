@@ -24,28 +24,22 @@ jobs:
         with:
           node-version: 24
 
-      - name: Installer Yarn 4.x
-        run: |
-          corepack enable
-          yarn set version stable
-          yarn --version
-
-      - name: Cache Yarn
+      - name: Cache npm
         uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809
         with:
-          path: .yarn/cache
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-node-modules-
 
       - name: Installer les dépendances
-        run: yarn install --immutable
+        run: npm install
 
       - name: Linter
-        run: yarn lint
+        run: npm run lint
 
       - name: Tests unitaires
-        run: yarn test
+        run: npm run test
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25
@@ -53,13 +47,13 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Retire
-        run: yarn retire
+        run: npx retire
 
       - name: Audit deps (prod)
-        run: yarn npm audit -R --environment production
+        run: npm audit -R --environment production
 
       - name: Audit deps (dev)
-        run: yarn npm audit --environment development || true
+        run: npm audit --environment development || true
 
       - name: Extraire la version du package.json
         id: pkg
