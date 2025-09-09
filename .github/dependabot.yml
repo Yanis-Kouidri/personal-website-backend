@@ -7,7 +7,7 @@ updates:
     target-branch: 'dev'
 
   - package-ecosystem: 'docker'
-    directory: '/' # Location of package manifests (package.json)
+    directory: '/' # Location of package manifests (Dockerfile)
     schedule:
       interval: 'daily'
     target-branch: 'dev'
