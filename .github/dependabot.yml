@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/' # Location of package manifests (package.json)
+    schedule:
+      interval: 'daily'
+    target-branch: 'dev'
+
+  - package-ecosystem: 'docker'
+    directory: '/' # Location of package manifests (Dockerfile)
+    schedule:
+      interval: 'daily'
+    target-branch: 'dev'
+
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+    target-branch: 'dev'
+
