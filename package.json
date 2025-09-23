@@ -16,7 +16,7 @@
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.16.4",
+    "mongoose": "^8.18.2",
     "multer": "^2.0.2",
     "supertest": "^7.1.4",
     "zod": "^4.1.11"
