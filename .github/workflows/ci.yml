@@ -15,7 +15,7 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout le code
+      - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       - name: Setup Node.js
@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: 24
 
-      - name: Cache npm
+      - name: npm cache
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: node_modules
@@ -31,13 +31,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-modules-
 
-      - name: Installer les dépendances
+      - name: Dependencies installation
         run: npm install
 
-      - name: Linter
+      - name: Linting
         run: npm run lint
 
-      - name: Tests unitaires
+      - name: Unit tests
         run: npm run test
 
       - name: SonarQube Scan
@@ -61,30 +61,28 @@ jobs:
       - name: Audit deps (dev)
         run: npm audit --environment development || true
 
-      - name: Extraire la version du package.json
+      - name: Extract package.json version
         id: pkg
         run: echo "version=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
 
-      - name: Préparer le nom de l'image (en minuscules)
+      - name: Prepare image name
         id: image
         run: |
           owner_lc=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           echo "name=ghcr.io/$owner_lc/backend-node" >> "$GITHUB_OUTPUT"
 
-      # Configurer Buildx pour le multi-arch
+      # multi-arch build
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435
 
-      # Authentification à GHCR
-      - name: Connexion à GitHub Container Registry
+      - name: Connection to GitHub Container Registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build multi-arch et push avec tags
-      - name: Build et push multi-arch Docker image
+      - name: multi-arch Build and push Docker image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83
         with:
           context: .
@@ -96,7 +94,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Vérifier les tags publiés
+      - name: Display published tags
         run: |
           echo "Image pushed:"
           echo "${{ steps.image.outputs.name }}:latest"
