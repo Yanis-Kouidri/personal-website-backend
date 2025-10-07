@@ -19,7 +19,7 @@
     "mongoose": "^8.19.0",
     "multer": "^2.0.2",
     "supertest": "^7.1.4",
-    "zod": "^4.1.11"
+    "zod": "^4.1.12"
   },
   "scripts": {
     "start": "node src/server.js",
