@@ -14,19 +14,23 @@ import {
   listFilesAndDirectories,
 } from '../../src/utils/file-system-interaction'
 
-jest.mock('node:fs')
-jest.mock('node:path')
-jest.mock('../../src/utils/file-system-interaction')
+vi.mock('node:fs')
+vi.mock('node:path')
+vi.mock('../../src/utils/file-system-interaction')
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
 
 describe('test getAllDocumentation controller', () => {
   let mockRequest, mockResponse
 
   beforeEach(() => {
-    // jest.spyOn(console, 'log').mockRestore()
-    // jest.spyOn(console, 'error').mockRestore()
+    // vi.spyOn(console, 'log').mockRestore()
+    // vi.spyOn(console, 'error').mockRestore()
     mockResponse = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn().mockReturnThis(),
     }
   })
 
@@ -93,16 +97,16 @@ describe('test addOneDocument controller', () => {
   let mockRequest, mockResponse
 
   beforeEach(() => {
-    // jest.spyOn(console, 'log').mockRestore()
-    // jest.spyOn(console, 'error').mockRestore()
+    // vi.spyOn(console, 'log').mockRestore()
+    // vi.spyOn(console, 'error').mockRestore()
 
     mockRequest = {
       file: 'something',
     }
 
     mockResponse = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn().mockReturnThis(),
     }
   })
 
@@ -121,8 +125,8 @@ describe('test newFolder controller', () => {
   let mockRequest, mockResponse
 
   beforeEach(() => {
-    // jest.spyOn(console, 'log').mockRestore()
-    // jest.spyOn(console, 'error').mockRestore()
+    // vi.spyOn(console, 'log').mockRestore()
+    // vi.spyOn(console, 'error').mockRestore()
 
     mockRequest = {
       body: {
@@ -132,8 +136,8 @@ describe('test newFolder controller', () => {
     }
 
     mockResponse = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn().mockReturnThis(),
     }
   })
 
@@ -189,8 +193,8 @@ describe('test deleteItem controller', () => {
   let mockRequest, mockResponse
 
   beforeEach(() => {
-    // jest.spyOn(console, 'log').mockRestore()
-    // jest.spyOn(console, 'error').mockRestore()
+    // vi.spyOn(console, 'log').mockRestore()
+    // vi.spyOn(console, 'error').mockRestore()
 
     mockRequest = {
       body: {
@@ -199,8 +203,8 @@ describe('test deleteItem controller', () => {
     }
 
     mockResponse = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn().mockReturnThis(),
     }
   })
 
@@ -364,7 +368,7 @@ describe('test deleteItem controller', () => {
       throw error
     })
 
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation()
 
     deleteItem(mockRequest, mockResponse)
 
@@ -402,7 +406,7 @@ describe('test deleteItem controller', () => {
       throw error
     })
 
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation()
 
     deleteItem(mockRequest, mockResponse)
 
@@ -441,13 +445,9 @@ describe('test renameItem controller', () => {
     }
 
     mockResponse = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn().mockReturnThis(),
     }
-  })
-
-  afterEach(() => {
-    jest.clearAllMocks()
   })
 
   it('should return 400 if newName contains invalid characters', () => {

@@ -15,11 +15,11 @@ describe('authentication middleware', () => {
     }
 
     response = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
     }
 
-    next = jest.fn()
+    next = vi.fn()
   })
 
   it('should return 401 if token is missing', () => {

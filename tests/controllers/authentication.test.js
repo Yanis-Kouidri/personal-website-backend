@@ -10,9 +10,9 @@ import {
 } from '../../src/controllers/authentication.js'
 import User from '../../src/models/user.js'
 
-jest.mock('argon2')
-jest.mock('jsonwebtoken')
-jest.mock('../../src/models/user.js')
+vi.mock('argon2')
+vi.mock('jsonwebtoken')
+vi.mock('../../src/models/user.js')
 
 describe('Authentication Controller Tests', () => {
   let mockRequest
@@ -24,13 +24,13 @@ describe('Authentication Controller Tests', () => {
   })
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     mockResponse = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis(),
-      cookie: jest.fn().mockReturnThis(),
-      clearCookie: jest.fn().mockReturnThis(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn().mockReturnThis(),
+      cookie: vi.fn().mockReturnThis(),
+      clearCookie: vi.fn().mockReturnThis(),
     }
   })
 
@@ -145,7 +145,7 @@ describe('Authentication Controller Tests', () => {
     it('should return 201 if signup is successful', async () => {
       User.findOne.mockResolvedValue()
       argon2.hash.mockResolvedValue('hashed_password')
-      User.prototype.save = jest.fn().mockResolvedValue()
+      User.prototype.save = vi.fn().mockResolvedValue()
 
       await signup(mockRequest, mockResponse)
 

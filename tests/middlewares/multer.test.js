@@ -1,16 +1,27 @@
 import fs from 'node:fs'
-
 import express from 'express'
 import request from 'supertest'
 
 import { documentUpload, errorHandler } from '../../src/middlewares/multer'
 
-jest.mock('node:fs', () => {
-  const actualFs = jest.requireActual('node:fs')
-  return {
+vi.mock('node:fs', async (importOriginal) => {
+  const actualFs = await importOriginal()
+
+  // On crée nos mocks
+  const existsSync = vi.fn()
+  const statSync = vi.fn()
+
+  // On prépare l'objet qui contient tout (original + nos mocks)
+  const mockedModule = {
     ...actualFs,
-    existsSync: jest.fn(),
-    statSync: jest.fn(),
+    existsSync,
+    statSync,
+  }
+
+  return {
+    ...mockedModule,
+    // CRUCIAL : on définit l'export par défaut pour 'import fs from "node:fs"'
+    default: mockedModule,
   }
 })
 
@@ -29,7 +40,7 @@ app.post(
 
 describe('multer middleware', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('storage.destination', () => {
@@ -121,4 +132,4 @@ describe('multer middleware', () => {
   })
 })
 
-// We recommend installing an extension to run jest tests.
+// We recommend installing an extension to run vi tests.

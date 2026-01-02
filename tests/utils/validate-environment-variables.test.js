@@ -18,15 +18,15 @@ describe('validateEnvironmentVariables', () => {
   ]
 
   beforeEach(() => {
-    jest.resetModules() // reset dotenv config if used
+    vi.resetModules() // reset dotenv config if used
     process.env = { ...originalEnvironment } // clone env
-    jest.spyOn(console, 'log').mockImplementation(() => {})
-    jest.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
   afterEach(() => {
     process.env = originalEnvironment
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('should log success if all env variables are present', () => {

@@ -1,6 +1,6 @@
 import { validateBody } from '../../src/middlewares/validate-body'
 
-const mockSafeParse = jest.fn()
+const mockSafeParse = vi.fn()
 const mockSchema = {
   safeParse: mockSafeParse,
 }
@@ -14,11 +14,11 @@ describe('validateBody middleware', () => {
     }
 
     response = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
     }
 
-    next = jest.fn()
+    next = vi.fn()
   })
 
   it('should call next() if validation succeeds', () => {
@@ -37,7 +37,7 @@ describe('validateBody middleware', () => {
   it('should return 400 if validation fails', () => {
     mockSafeParse.mockReturnValue({
       success: false,
-      error: { format: jest.fn() },
+      error: { format: vi.fn() },
     })
 
     const middleware = validateBody(mockSchema)
@@ -52,13 +52,13 @@ describe('validateBody middleware', () => {
     const originalEnvironment = process.env.NODE_ENV
     process.env.NODE_ENV = 'development'
 
-    const errorFormatMock = jest.fn().mockReturnValue('formatted error') // Mock pour retourner une valeur définie
+    const errorFormatMock = vi.fn().mockReturnValue('formatted error') // Mock pour retourner une valeur définie
     mockSafeParse.mockReturnValue({
       success: false,
       error: { format: errorFormatMock },
     })
 
-    const consoleWarnMock = jest
+    const consoleWarnMock = vi
       .spyOn(console, 'warn')
       .mockImplementation(() => {})
 
@@ -80,13 +80,13 @@ describe('validateBody middleware', () => {
     const originalEnvironment = process.env.NODE_ENV
     process.env.NODE_ENV = 'production'
 
-    const errorFormatMock = jest.fn().mockReturnValue('formatted error') // Mock pour retourner une valeur définie
+    const errorFormatMock = vi.fn().mockReturnValue('formatted error') // Mock pour retourner une valeur définie
     mockSafeParse.mockReturnValue({
       success: false,
       error: { format: errorFormatMock },
     })
 
-    const consoleWarnMock = jest
+    const consoleWarnMock = vi
       .spyOn(console, 'warn')
       .mockImplementation(() => {})
 

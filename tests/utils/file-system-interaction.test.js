@@ -29,11 +29,11 @@ describe('getSafeUserPath', () => {
   })
 })
 
-jest.mock('node:fs')
+vi.mock('node:fs')
 
 describe('listFilesAndDirectories', () => {
   afterEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   it('should list a single file in the directory', () => {
