@@ -19,12 +19,12 @@ function validateEnvironmentVariables() {
   ]
 
   const missingEnvironmentVariables = requiredEnvironmentVariables.filter(
-    (environmentVariable) => !process.env[environmentVariable]
+    (environmentVariable) => !process.env[environmentVariable],
   )
 
   if (missingEnvironmentVariables.length > 0) {
     console.error(
-      `WARN: The following environment variables are missing or not defined: ${missingEnvironmentVariables.join(', ')}`
+      `WARN: The following environment variables are missing or not defined: ${missingEnvironmentVariables.join(', ')}`,
     )
   } else {
     console.log('All required environment variables are defined.')

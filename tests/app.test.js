@@ -49,7 +49,7 @@ describe('App Integration', () => {
       .set('Access-Control-Request-Method', 'GET')
     expect(response.status).toBe(204) // No Content (typical preflight)
     expect(response.headers['access-control-allow-origin']).toBe(
-      'http://localhost:3000'
+      'http://localhost:3000',
     )
     expect(response.headers['access-control-allow-credentials']).toBe('true')
   })

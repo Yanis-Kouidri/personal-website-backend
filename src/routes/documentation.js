@@ -22,28 +22,28 @@ router.post(
   authentication,
   documentationUpload.single('file'),
   errorHandler,
-  documentationController.addOneDocument
+  documentationController.addOneDocument,
 )
 
 router.post(
   '/newfolder',
   authentication,
   validateBody(newFolderSchema),
-  documentationController.newFolder
+  documentationController.newFolder,
 )
 
 router.delete(
   '/',
   authentication,
   validateBody(deleteItemSchema),
-  documentationController.deleteItem
+  documentationController.deleteItem,
 )
 
 router.patch(
   '/rename',
   authentication,
   validateBody(renameItemSchema),
-  documentationController.renameItem
+  documentationController.renameItem,
 )
 
 export default router

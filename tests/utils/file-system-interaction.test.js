@@ -11,7 +11,7 @@ describe('getSafeUserPath', () => {
   it('should return the correct resolved path for a valid user path', () => {
     const userPath = 'some/valid/path'
     const expectedPath = path.resolve(
-      path.join(DOCUMENTATION_DIRECTORY, userPath)
+      path.join(DOCUMENTATION_DIRECTORY, userPath),
     )
     expect(getSafeUserPath(userPath)).toBe(expectedPath)
   })
@@ -24,7 +24,7 @@ describe('getSafeUserPath', () => {
   it('should throw an error for a path that tries to access a hidden file', () => {
     const userPath = 'some/.hiddenfile'
     expect(() => getSafeUserPath(userPath)).toThrow(
-      'Access to hidden files is forbidden'
+      'Access to hidden files is forbidden',
     )
   })
 })

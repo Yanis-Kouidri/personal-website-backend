@@ -12,19 +12,19 @@ router.post(
   '/login',
   loginLimiter,
   validateBody(loginSchema),
-  authenticationControllers.login
+  authenticationControllers.login,
 )
 router.post(
   '/signup',
   loginLimiter,
   validateBody(signupSchema),
-  authenticationControllers.signup
+  authenticationControllers.signup,
 )
 router.get(
   '/me',
   tokenVerifLimiter,
   authentication,
-  authenticationControllers.me
+  authenticationControllers.me,
 )
 router.get('/logout', authenticationControllers.logout)
 

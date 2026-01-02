@@ -63,12 +63,12 @@ describe('Authentication Controller Tests', () => {
       expect(User.findOne).toHaveBeenCalledWith({ username: mockUser.username })
       expect(argon2.verify).toHaveBeenCalledWith(
         mockUser.password,
-        mockRequest.body.password
+        mockRequest.body.password,
       )
       expect(jwt.sign).toHaveBeenCalledWith(
         { id: mockUser._id, username: mockUser.username },
         process.env.NODE_JS_JWT_SECRET,
-        { expiresIn: '24h' }
+        { expiresIn: '24h' },
       )
       expect(mockResponse.cookie).toHaveBeenCalledWith(
         TOKEN_COOKIE_NAME,
@@ -78,7 +78,7 @@ describe('Authentication Controller Tests', () => {
           secure: true,
           sameSite: 'None',
           maxAge: 60 * 60 * 1000,
-        }
+        },
       )
       expect(mockResponse.status).toHaveBeenCalledWith(200)
       expect(mockResponse.json).toHaveBeenCalledWith({
@@ -151,7 +151,7 @@ describe('Authentication Controller Tests', () => {
 
       expect(argon2.hash).toHaveBeenCalledWith(
         mockRequest.body.password,
-        expect.any(Object)
+        expect.any(Object),
       )
 
       expect(User.prototype.save).toHaveBeenCalledOnce()
@@ -199,7 +199,7 @@ describe('Authentication Controller Tests', () => {
 
       expect(mockResponse.clearCookie).toHaveBeenCalledWith(
         TOKEN_COOKIE_NAME,
-        expect.any(Object)
+        expect.any(Object),
       )
       expect(mockResponse.status).toHaveBeenCalledWith(200)
       expect(mockResponse.json).toHaveBeenCalledWith({

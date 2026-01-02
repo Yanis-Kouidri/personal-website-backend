@@ -27,7 +27,7 @@ const errorHandler = (error) => {
     case 'EACCES': {
       console.error(bind + ' requires elevated privileges.')
       throw new Error(
-        'Impossible to bind this port, elevated privileges required'
+        'Impossible to bind this port, elevated privileges required',
       )
     }
     case 'EADDRINUSE': {

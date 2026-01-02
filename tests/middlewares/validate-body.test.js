@@ -68,7 +68,7 @@ describe('validateBody middleware', () => {
     expect(errorFormatMock).toHaveBeenCalled()
     expect(consoleWarnMock).toHaveBeenCalledWith(
       'Validation error:',
-      'formatted error'
+      'formatted error',
     )
 
     // Restaurer l'environnement original

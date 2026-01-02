@@ -37,7 +37,7 @@ describe('validateEnvironmentVariables', () => {
     validateEnvironmentVariables()
 
     expect(console.log).toHaveBeenCalledWith(
-      'All required environment variables are defined.'
+      'All required environment variables are defined.',
     )
     expect(console.error).not.toHaveBeenCalled()
   })

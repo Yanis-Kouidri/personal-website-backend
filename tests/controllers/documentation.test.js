@@ -413,7 +413,7 @@ describe('test deleteItem controller', () => {
     expect(fs.rmdirSync).toHaveBeenCalledWith(safeUserPath)
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       'Error deleting folder:',
-      error
+      error,
     )
     expect(mockResponse.status).toHaveBeenCalledWith(500)
     expect(mockResponse.json).toHaveBeenCalledWith({

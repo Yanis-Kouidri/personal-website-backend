@@ -24,7 +24,7 @@ app.post(
   },
   documentUpload.single('file'),
   (request_, response) => response.status(200).json({ file: request_.file }),
-  errorHandler
+  errorHandler,
 )
 
 describe('multer middleware', () => {
@@ -70,7 +70,7 @@ describe('multer middleware', () => {
         .attach(
           'file',
           Buffer.from('dummy'),
-          encodeURIComponent('file name.pdf')
+          encodeURIComponent('file name.pdf'),
         )
 
       expect(response.status).toBe(200)

@@ -36,7 +36,7 @@ const documentationFileFilter = (request, file, callback) => {
   const filetypes = /pdf|msword|doc|docx|pptx|ptt|zip/
   const mimetypeMatch = filetypes.test(file.mimetype)
   const extnameMatch = filetypes.test(
-    path.extname(file.originalname).toLowerCase()
+    path.extname(file.originalname).toLowerCase(),
   )
 
   if (mimetypeMatch && extnameMatch) {
