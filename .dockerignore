@@ -1,9 +1,27 @@
-node_modules
-.vscode
+node_modules/
+.vscode/
 .pnp.*
 .env
-.env.example
+.env.*
 .git
 .gitignore
 dist
 README.md
+tests/
+coverage/
+*.swp
+.editorconfig
+sonar-project.properties
+
+# Vitest
+.vitest-result
+biome.json
+vitest.config.js
+vitest.setup.js
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Github
+.github
