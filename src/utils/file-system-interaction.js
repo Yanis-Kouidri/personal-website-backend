@@ -22,7 +22,7 @@ export const verifyPath = (userPath) => {
 }
 
 export const listFilesAndDirectories = (directory) => {
-  let result = []
+  const result = []
   const items = fs.readdirSync(directory)
   for (const item of items) {
     const fullPath = path.join(directory, item)

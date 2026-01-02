@@ -17,7 +17,7 @@ jest.mock('node:fs', () => {
 const app = express()
 app.post(
   '/upload',
-  (request_, response, next) => {
+  (request_, _response, next) => {
     // mock req.query.path for testing
     request_.query.path = request_.headers['x-path'] || ''
     next()

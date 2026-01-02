@@ -4,7 +4,7 @@ import path from 'node:path'
 import multer from 'multer'
 
 const storage = multer.diskStorage({
-  destination: function (request, file, callback) {
+  destination: (request, _file, callback) => {
     const requestedSubfolder = request.query.path || ''
 
     const sanitizedPath = path
@@ -27,12 +27,12 @@ const storage = multer.diskStorage({
 
     callback(undefined, fullPath)
   },
-  filename: function (request, file, callback) {
+  filename: (_request, file, callback) => {
     callback(undefined, decodeURIComponent(file.originalname))
   },
 })
 
-const documentationFileFilter = (request, file, callback) => {
+const documentationFileFilter = (_request, file, callback) => {
   const filetypes = /pdf|msword|doc|docx|pptx|ptt|zip/
   const mimetypeMatch = filetypes.test(file.mimetype)
   const extnameMatch = filetypes.test(
@@ -45,7 +45,7 @@ const documentationFileFilter = (request, file, callback) => {
   callback(new Error('File type not supported'))
 }
 
-export const errorHandler = (error, request, response, next) => {
+export const errorHandler = (error, _request, response, next) => {
   if (error) {
     return response.status(400).json({ message: error.message })
   }

@@ -9,9 +9,9 @@ import {
   renameItem,
 } from '../../src/controllers/documentation'
 import {
+  DOCUMENTATION_DIRECTORY,
   getSafeUserPath,
   listFilesAndDirectories,
-  DOCUMENTATION_DIRECTORY,
 } from '../../src/utils/file-system-interaction'
 
 jest.mock('node:fs')

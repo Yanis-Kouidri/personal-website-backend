@@ -3,12 +3,12 @@ import path from 'node:path'
 
 import {
   DOCUMENTATION_DIRECTORY,
-  listFilesAndDirectories,
   getSafeUserPath,
+  listFilesAndDirectories,
   verifyPath,
 } from '../utils/file-system-interaction.js'
 
-export const getAllDocumentation = (request, response) => {
+export const getAllDocumentation = (_request, response) => {
   if (!fs.existsSync(DOCUMENTATION_DIRECTORY)) {
     fs.mkdirSync(DOCUMENTATION_DIRECTORY, { recursive: true })
   }
@@ -32,7 +32,7 @@ export const getAllDocumentation = (request, response) => {
   }
 }
 
-export const addOneDocument = (request, response) => {
+export const addOneDocument = (_request, response) => {
   response.status(200).json({ message: 'File uploaded !' })
 }
 
@@ -41,7 +41,7 @@ export const newFolder = (request, response) => {
 
   const userFolderPath = path.join(folderPath, folderName)
 
-  let newFolderPath = getSafeUserPath(userFolderPath)
+  const newFolderPath = getSafeUserPath(userFolderPath)
 
   if (fs.existsSync(newFolderPath)) {
     return response.status(401).json({ message: 'Folder already exists' })

@@ -47,14 +47,14 @@ mongodbUrl +=
   '/' +
   process.env.NODE_JS_MONGODB_DATABASE
 
-console.log('Mongodb URI: ' + mongodbUrl)
+console.log(`Mongodb URI: ${mongodbUrl}`)
 
 try {
   await mongoose.connect(mongodbUrl)
   console.log('Connection to mongodb database succeeded')
 } catch (error) {
   if (process.env.NODE_ENV === 'development') {
-    console.error('Connection failed: ' + error)
+    console.error(`Connection failed: ${error}`)
   } else {
     console.error('Connection to mongodb database failed')
   }
@@ -63,10 +63,10 @@ try {
 const cors_origin =
   process.env.NODE_JS_FRONTEND_URL +
   (process.env.NODE_JS_FRONTEND_PORT
-    ? ':' + process.env.NODE_JS_FRONTEND_PORT
+    ? `:${process.env.NODE_JS_FRONTEND_PORT}`
     : '')
 
-console.log('CORS origin: ' + cors_origin)
+console.log(`CORS origin: ${cors_origin}`)
 
 const corsOptions = {
   origin: cors_origin,

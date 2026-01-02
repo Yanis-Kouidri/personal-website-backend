@@ -22,16 +22,16 @@ const errorHandler = (error) => {
     throw error
   }
   const address = server.address()
-  const bind = typeof address === 'string' ? 'pipe ' + address : 'port: ' + port
+  const bind = typeof address === 'string' ? `pipe ${address}` : `port: ${port}`
   switch (error.code) {
     case 'EACCES': {
-      console.error(bind + ' requires elevated privileges.')
+      console.error(`${bind} requires elevated privileges.`)
       throw new Error(
         'Impossible to bind this port, elevated privileges required',
       )
     }
     case 'EADDRINUSE': {
-      console.error(bind + ' is already in use.')
+      console.error(`${bind} is already in use.`)
       throw new Error('Impossible to bind this port, already in use')
     }
     default: {
@@ -45,8 +45,8 @@ const server = http.createServer(app)
 server.on('error', errorHandler)
 server.on('listening', () => {
   const address = server.address()
-  const bind = typeof address === 'string' ? 'pipe ' + address : 'port ' + port
-  console.log('Listening on ' + bind)
+  const bind = typeof address === 'string' ? `pipe ${address}` : `port ${port}`
+  console.log(`Listening on ${bind}`)
 })
 
 server.listen(port)

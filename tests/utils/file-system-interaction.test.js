@@ -2,8 +2,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import {
-  getSafeUserPath,
   DOCUMENTATION_DIRECTORY,
+  getSafeUserPath,
   listFilesAndDirectories,
 } from '../../src/utils/file-system-interaction'
 

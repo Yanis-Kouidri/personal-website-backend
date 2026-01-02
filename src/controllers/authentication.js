@@ -45,7 +45,7 @@ export const login = async (request, response) => {
 
     return response.status(200).json({ message: 'Log-in successful', username })
   } catch (error) {
-    console.error('Login error: ' + error)
+    console.error(`Login error: ${error}`)
     return response.status(500).json({ message: 'Internal server error' })
   }
 }
@@ -83,7 +83,7 @@ export const me = (request, response) => {
   return response.status(200).json({ user: request.tokenData.username })
 }
 
-export const logout = (request, response) => {
+export const logout = (_request, response) => {
   response.clearCookie(TOKEN_COOKIE_NAME, {
     httpOnly: true,
     secure: true,
