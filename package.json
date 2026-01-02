@@ -23,13 +23,12 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon",
+    "dev": "node --watch src/server.js",
     "lint": "biome check .",
     "test": "vitest"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.10",
-    "nodemon": "^3.1.11",
     "retire": "^5.4.0",
     "vitest": "^4.0.16"
   }
