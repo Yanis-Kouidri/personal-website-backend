@@ -29,12 +29,7 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.5",
-    "@babel/eslint-parser": "^7.28.5",
-    "@babel/preset-env": "^7.28.5",
     "@eslint/js": "^9.39.2",
-    "babel-jest": "^30.2.0",
-    "babel-plugin-transform-import-meta": "^2.3.3",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
