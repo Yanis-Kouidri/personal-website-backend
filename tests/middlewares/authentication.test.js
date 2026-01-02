@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { SignJWT } from 'jose'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { TOKEN_COOKIE_NAME } from '../../src/controllers/authentication.js'
 import authentication from '../../src/middlewares/authentication.js'

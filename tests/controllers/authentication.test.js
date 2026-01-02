@@ -22,6 +22,7 @@ const mockSignJWTInstance = {
 }
 
 vi.mock('jose', () => ({
+  // biome-ignore lint/complexity/useArrowFunction: <I need custructor that I can't have with and arrow function>
   SignJWT: vi.fn().mockImplementation(function () {
     return mockSignJWTInstance
   }),
