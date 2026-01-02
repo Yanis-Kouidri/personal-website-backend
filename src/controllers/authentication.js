@@ -1,16 +1,16 @@
 import 'dotenv/config'
-import argon2 from 'argon2' // Remplacement de bcrypt
+import argon2 from 'argon2'
 import jwt from 'jsonwebtoken'
 
 import User from '../models/user.js'
 
 export const TOKEN_COOKIE_NAME = 'jwt'
 
-// Configuration recommandée par l'OWASP pour Argon2id
+// OWASP recommended config for Argon2id
 const ARGON2_OPTIONS = {
   type: argon2.argon2id,
   memoryCost: 2 ** 16, // 64 MB
-  timeCost: 3, // 3 itérations
+  timeCost: 3, // 3 iterations
   parallelism: 1, // 1 thread
 }
 
@@ -24,7 +24,6 @@ export const login = async (request, response) => {
       return response.status(401).json({ message: errorMessage })
     }
 
-    // Attention : l'ordre est (hash, plain_password) avec argon2
     const isMatch = await argon2.verify(user.password, password)
 
     if (!isMatch) {
@@ -41,7 +40,7 @@ export const login = async (request, response) => {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
-      maxAge: 60 * 60 * 1000, // 1h en ms
+      maxAge: 60 * 60 * 1000, // 1h
     })
 
     return response.status(200).json({ message: 'Log-in successful', username })
@@ -65,7 +64,6 @@ export const signup = async (request, response) => {
       return response.status(401).json({ message: errorMessage })
     }
 
-    // Hachage avec Argon2id
     const hashedPassword = await argon2.hash(password, ARGON2_OPTIONS)
 
     const user = new User({

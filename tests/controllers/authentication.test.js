@@ -1,4 +1,3 @@
-// authentication.test.js
 import argon2 from 'argon2'
 import jwt from 'jsonwebtoken'
 
@@ -11,7 +10,6 @@ import {
 } from '../../src/controllers/authentication.js'
 import User from '../../src/models/user.js'
 
-// Mock des dépendances
 jest.mock('argon2')
 jest.mock('jsonwebtoken')
 jest.mock('../../src/models/user.js')
@@ -21,13 +19,11 @@ describe('Authentication Controller Tests', () => {
   let mockResponse
 
   beforeAll(() => {
-    // Configuration des variables d'environnement pour les tests
     process.env.NODE_JS_JWT_SECRET = 'test_secret'
     process.env.NODE_JS_SIGN_UP_KEY = 'test_signupkey'
   })
 
   beforeEach(() => {
-    // Réinitialisation des mocks avant chaque test pour éviter les interférences
     jest.clearAllMocks()
 
     mockResponse = {
@@ -65,7 +61,6 @@ describe('Authentication Controller Tests', () => {
 
       // Assert
       expect(User.findOne).toHaveBeenCalledWith({ username: mockUser.username })
-      // Argon2 verify prend (hash, plainPassword)
       expect(argon2.verify).toHaveBeenCalledWith(
         mockUser.password,
         mockRequest.body.password
