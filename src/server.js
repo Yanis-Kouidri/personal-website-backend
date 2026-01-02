@@ -1,6 +1,5 @@
 import http from 'node:http'
 
-import 'dotenv/config'
 import app from './app.js'
 
 const normalizePort = (value) => {

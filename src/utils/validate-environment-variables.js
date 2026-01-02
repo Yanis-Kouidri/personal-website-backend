@@ -1,9 +1,4 @@
-import dotenv from 'dotenv'
-
 function validateEnvironmentVariables() {
-  // Load environment variables from the .env file
-  dotenv.config()
-
   const requiredEnvironmentVariables = [
     'NODE_JS_MONGODB_USERNAME',
     'NODE_JS_MONGODB_PASSWORD',
