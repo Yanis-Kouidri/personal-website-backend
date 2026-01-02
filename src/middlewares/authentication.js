@@ -1,9 +1,9 @@
-import jwt from 'jsonwebtoken'
-
+import { jwtVerify } from 'jose'
 import { TOKEN_COOKIE_NAME } from '../controllers/authentication.js'
 
-function authentication(request, response, next) {
+async function authentication(request, response, next) {
   const token = request.cookies[TOKEN_COOKIE_NAME]
+
   if (!token) {
     return response
       .status(401)
@@ -11,11 +11,18 @@ function authentication(request, response, next) {
   }
 
   try {
-    const tokenData = jwt.verify(token, process.env.NODE_JS_JWT_SECRET)
-    request.tokenData = tokenData
+    // On encode le secret ici pour être sûr d'avoir la valeur à jour de process.env
+    const secret = new TextEncoder().encode(process.env.NODE_JS_JWT_SECRET)
+    const { payload } = await jwtVerify(token, secret)
+
+    request.tokenData = payload
     next()
   } catch (error) {
-    return response.status(401).json({ message: error })
+    // Si on arrive ici, request.tokenData n'est pas défini, d'où ton erreur de test
+    return response.status(401).json({
+      message: 'Invalid or expired token',
+      error: error.code,
+    })
   }
 }
 

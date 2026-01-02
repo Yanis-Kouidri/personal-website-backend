@@ -1,5 +1,5 @@
 import argon2 from 'argon2'
-import jwt from 'jsonwebtoken'
+import { SignJWT } from 'jose'
 
 import User from '../models/user.js'
 
@@ -15,36 +15,34 @@ const ARGON2_OPTIONS = {
 
 export const login = async (request, response) => {
   try {
-    const errorMessage = 'Invalid credentials'
     const { username, password } = request.body
-
     const user = await User.findOne({ username })
-    if (!user) {
-      return response.status(401).json({ message: errorMessage })
+
+    if (!user || !(await argon2.verify(user.password, password))) {
+      return response.status(401).json({ message: 'Invalid credentials' })
     }
 
-    const isMatch = await argon2.verify(user.password, password)
+    const secret = new TextEncoder().encode(process.env.NODE_JS_JWT_SECRET)
 
-    if (!isMatch) {
-      return response.status(401).json({ message: errorMessage })
-    }
-
-    const token = jwt.sign(
-      { id: user._id, username: username },
-      process.env.NODE_JS_JWT_SECRET,
-      { expiresIn: '24h' },
-    )
+    const token = await new SignJWT({ id: user._id, username: username })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('24h')
+      .sign(secret)
 
     response.cookie(TOKEN_COOKIE_NAME, token, {
       httpOnly: true,
       secure: true,
       sameSite: 'None',
-      maxAge: 60 * 60 * 1000, // 1h
+      maxAge: 60 * 60 * 1000,
     })
 
     return response.status(200).json({ message: 'Log-in successful', username })
   } catch (error) {
-    console.error(`Login error: ${error}`)
+    // Un log plus professionnel pour la production
+    console.error(`[Auth-Login-Error]: ${error.message}`, {
+      stack: error.stack,
+    })
     return response.status(500).json({ message: 'Internal server error' })
   }
 }
