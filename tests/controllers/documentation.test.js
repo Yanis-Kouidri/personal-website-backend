@@ -122,6 +122,22 @@ describe('Documentation Controller', () => {
         message: 'Folder already exists',
       })
     })
+
+    it('should return 500 if mkdir fails unexpectedly', async () => {
+      getSafeUserPath.mockReturnValue('/safe/root/new-dir')
+      fs.access.mockRejectedValue(new Error()) // Folder doesn't exist
+      fs.mkdir.mockRejectedValue(new Error('Disk full'))
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      await newFolder(mockRequest, mockResponse)
+
+      expect(mockResponse.status).toHaveBeenCalledWith(500)
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        message: 'Internal server error',
+      })
+      consoleSpy.mockRestore()
+    })
   })
 
   describe('deleteItem', () => {
@@ -167,6 +183,54 @@ describe('Documentation Controller', () => {
 
       expect(mockResponse.status).toHaveBeenCalledWith(404)
     })
+
+    it('should successfully delete an empty directory', async () => {
+      mockRequest = { body: { path: 'empty-dir' } }
+      getSafeUserPath.mockReturnValue('/safe/empty-dir')
+      fs.stat.mockResolvedValue({
+        isFile: () => false,
+        isDirectory: () => true,
+      })
+      fs.readdir.mockResolvedValue([]) // Empty folder (Trigger line 104-105)
+      fs.rmdir.mockResolvedValue(undefined)
+
+      await deleteItem(mockRequest, mockResponse)
+
+      expect(fs.rmdir).toHaveBeenCalledWith('/safe/empty-dir')
+      expect(mockResponse.status).toHaveBeenCalledWith(200)
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        message: 'Folder successfully deleted',
+      })
+    })
+
+    it('should return 400 if item is neither file nor directory', async () => {
+      mockRequest = { body: { path: 'symlink' } }
+      fs.stat.mockResolvedValue({
+        isFile: () => false,
+        isDirectory: () => false,
+      }) // Trigger line 108
+
+      await deleteItem(mockRequest, mockResponse)
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400)
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        message: 'Invalid item type',
+      })
+    })
+
+    it('should return 500 on generic filesystem error during delete', async () => {
+      mockRequest = { body: { path: 'file.txt' } }
+      const genericError = new Error('Permission denied')
+      genericError.code = 'EACCES'
+      fs.stat.mockRejectedValue(genericError) // Trigger line 110-111
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      await deleteItem(mockRequest, mockResponse)
+
+      expect(mockResponse.status).toHaveBeenCalledWith(500)
+      consoleSpy.mockRestore()
+    })
   })
 
   describe('renameItem', () => {
@@ -200,6 +264,21 @@ describe('Documentation Controller', () => {
       expect(mockResponse.json).toHaveBeenCalledWith({
         message: 'New name already exists',
       })
+    })
+
+    it('should return 500 on generic filesystem error during rename', async () => {
+      mockRequest = { body: { itemPath: 'old.txt', newName: 'new.txt' } }
+      fs.stat.mockRejectedValue(new Error('System failure')) // Trigger line 148-149
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      await renameItem(mockRequest, mockResponse)
+
+      expect(mockResponse.status).toHaveBeenCalledWith(500)
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        message: 'Internal server error',
+      })
+      consoleSpy.mockRestore()
     })
   })
 })
