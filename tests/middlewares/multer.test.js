@@ -75,13 +75,13 @@ describe('multer middleware', () => {
   })
 
   describe('storage.filename', () => {
-    it('should sanitize and add a unique suffix', async () => {
+    it('should sanitize', async () => {
       const response = await request(app)
         .post('/upload')
         .attach('file', Buffer.from('dummy'), 'my report.pdf')
 
       expect(response.status).toBe(201)
-      expect(response.body.file.filename).toMatch(/^\d+-\d+-my_report.pdf$/)
+      expect(response.body.file.filename).toMatch(/^my_report.pdf$/)
     })
   })
 
