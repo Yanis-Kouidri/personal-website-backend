@@ -22,7 +22,7 @@ A modern, high-performance REST API built with Node.js 24, Express, and ESM. Thi
 Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/your-repo-backend.git
+git clone https://github.com/Yanis-Kouidri/portfolio-backend.git
 cd your-repo-backend
 ```
 
