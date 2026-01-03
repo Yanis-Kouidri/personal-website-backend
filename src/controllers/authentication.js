@@ -1,11 +1,14 @@
+import process from 'node:process'
 import argon2 from 'argon2'
 import { SignJWT } from 'jose'
-
 import User from '../models/user.js'
 
+/**
+ * Cookie configuration constant to ensure consistency across login/logout
+ */
 export const TOKEN_COOKIE_NAME = 'jwt'
 
-// OWASP recommended config for Argon2id
+// OWASP recommended configuration for Argon2id
 const ARGON2_OPTIONS = {
   type: argon2.argon2id,
   memoryCost: 2 ** 16, // 64 MB
@@ -13,79 +16,112 @@ const ARGON2_OPTIONS = {
   parallelism: 1, // 1 thread
 }
 
+/**
+ * Handle user login and JWT issuance
+ */
 export const login = async (request, response) => {
   try {
     const { username, password } = request.body
-    const user = await User.findOne({ username })
 
-    if (!user || !(await argon2.verify(user.password, password))) {
-      return response.status(401).json({ message: 'Invalid credentials' })
+    // 1. Find user and verify password
+    const user = await User.findOne({ username })
+    const isValidPassword = user
+      ? await argon2.verify(user.password, password)
+      : false
+
+    if (!isValidPassword) {
+      // Use a generic message to prevent username enumeration
+      return response
+        .status(401)
+        .json({ message: 'Invalid username or password' })
     }
 
-    const secret = new TextEncoder().encode(process.env.NODE_JS_JWT_SECRET)
-
-    const token = await new SignJWT({ id: user._id, username: username })
+    // 2. Generate JWT
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+    const token = await new SignJWT({
+      id: user._id,
+      username: user.username,
+    })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('24h')
       .sign(secret)
 
+    // 3. Set Secure Cookie
     response.cookie(TOKEN_COOKIE_NAME, token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'None',
-      maxAge: 60 * 60 * 1000,
+      httpOnly: true, // Prevents XSS attacks
+      secure: process.env.NODE_ENV === 'production', // Use HTTPS in production
+      sameSite: 'Lax', // Protects against CSRF
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours (matches JWT expiration)
+      path: '/',
     })
 
-    return response.status(200).json({ message: 'Log-in successful', username })
-  } catch (error) {
-    // Un log plus professionnel pour la production
-    console.error(`[Auth-Login-Error]: ${error.message}`, {
-      stack: error.stack,
+    return response.status(200).json({
+      message: 'Login successful',
+      user: { username: user.username },
     })
+  } catch (error) {
+    console.error(`[Auth-Login-Error]: ${error.message}`)
     return response.status(500).json({ message: 'Internal server error' })
   }
 }
 
+/**
+ * Secure signup with an invitation key
+ */
 export const signup = async (request, response) => {
   try {
-    const errorMessage = 'Unauthorized sign-up'
     const { username, password, signupKey } = request.body
 
-    if (signupKey !== process.env.NODE_JS_SIGN_UP_KEY) {
-      return response.status(401).json({ message: errorMessage })
+    // Protection for private/invite-only repositories
+    if (!signupKey || signupKey !== process.env.SIGNUP_KEY) {
+      return response
+        .status(403)
+        .json({ message: 'Invalid or missing signup key' })
     }
 
-    const userExist = await User.findOne({ username })
-    if (userExist) {
-      return response.status(401).json({ message: errorMessage })
+    const userExists = await User.findOne({ username })
+    if (userExists) {
+      return response.status(409).json({ message: 'Username already taken' })
     }
 
     const hashedPassword = await argon2.hash(password, ARGON2_OPTIONS)
 
-    const user = new User({
+    const newUser = new User({
       username,
       password: hashedPassword,
     })
-    await user.save()
+
+    await newUser.save()
 
     return response.status(201).json({ message: 'User successfully created' })
   } catch (error) {
-    console.error('Error in signup:', error)
+    console.error(`[Auth-Signup-Error]: ${error.message}`)
     return response.status(500).json({ message: 'Internal server error' })
   }
 }
 
+/**
+ * Get current authenticated user details
+ */
 export const me = (request, response) => {
-  return response.status(200).json({ user: request.tokenData.username })
+  // Access request.user populated by the authentication middleware
+  if (!request.user) {
+    return response.status(401).json({ message: 'Not authenticated' })
+  }
+  return response.status(200).json({ user: request.user })
 }
 
+/**
+ * Clear the authentication cookie
+ */
 export const logout = (_request, response) => {
   response.clearCookie(TOKEN_COOKIE_NAME, {
     httpOnly: true,
-    secure: true,
-    sameSite: 'None',
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'Lax',
     path: '/',
   })
-  response.status(200).json({ message: 'Log-out successful' })
+
+  return response.status(200).json({ message: 'Logout successful' })
 }

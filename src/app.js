@@ -1,5 +1,5 @@
 import path from 'node:path'
-
+import process from 'node:process'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
@@ -13,79 +13,93 @@ import documentationRoutes from './routes/documentation.js'
 import checkEnvironmentVariables from './utils/validate-environment-variables.js'
 
 const dirname = import.meta.dirname
-
 const app = express()
 
-app.use(helmet())
+/**
+ * Global Security & Initialization
+ */
+checkEnvironmentVariables()
+app.use(helmet()) // Sets various HTTP headers for security
+app.disable('x-powered-by') // Hide Express fingerprint
 
-app.use(express.json())
+// Add this in app.js before applying any rate limiters
+app.set('trust proxy', 1)
 
-app.use(jsonErrorHandler)
-
+/**
+ * Standard Middlewares
+ */
+app.use(express.json({ limit: '10kb' })) // Limit body size to prevent DoS
 app.use(cookieParser())
 
-//console.log('Env variables: ' + JSON.stringify(process.env, null, 2))
-checkEnvironmentVariables()
-
-let mongodbUrl = 'mongodb://'
-
-if (
-  process.env.NODE_JS_MONGODB_USERNAME &&
-  process.env.NODE_JS_MONGODB_PASSWORD
-) {
-  mongodbUrl +=
-    process.env.NODE_JS_MONGODB_USERNAME +
-    ':' +
-    process.env.NODE_JS_MONGODB_PASSWORD +
-    '@'
-}
-
-mongodbUrl +=
-  process.env.NODE_JS_MONGODB_ADDRESS +
-  ':' +
-  process.env.NODE_JS_MONGODB_PORT +
-  '/' +
-  process.env.NODE_JS_MONGODB_DATABASE
-
-console.log(`Mongodb URI: ${mongodbUrl}`)
+/**
+ * Database Connection
+ * Use a single URI string for reliability and security.
+ */
+const mongodbUri = process.env.MONGODB_URI
 
 try {
-  await mongoose.connect(mongodbUrl)
-  console.log('Connection to mongodb database succeeded')
+  // Database connection with top-level await (Node 24 ESM)
+  await mongoose.connect(mongodbUri)
+  console.info('Connected to MongoDB database')
 } catch (error) {
+  console.error('Database connection failed. Exiting...')
   if (process.env.NODE_ENV === 'development') {
-    console.error(`Connection failed: ${error}`)
-  } else {
-    console.error('Connection to mongodb database failed')
+    console.error(error)
   }
+  process.exit(1) // Stop the server if DB is unreachable
 }
 
-const cors_origin =
-  process.env.NODE_JS_FRONTEND_URL +
-  (process.env.NODE_JS_FRONTEND_PORT
-    ? `:${process.env.NODE_JS_FRONTEND_PORT}`
-    : '')
-
-console.log(`CORS origin: ${cors_origin}`)
-
+/**
+ * CORS Configuration
+ * Using a function instead of a string to strictly validate origins.
+ */
 const corsOptions = {
-  origin: cors_origin,
+  origin: (origin, callback) => {
+    const allowedOrigin = process.env.ALLOWED_ORIGIN
 
-  methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
-  allowedHeaders:
-    'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization',
+    // 1. Allow requests with no origin (like mobile apps, curl, or Postman)
+    // 2. Check if the incoming origin matches our allowed origin
+    if (!origin || origin === allowedOrigin) {
+      callback(null, true)
+    } else {
+      // Return false to omit the Access-Control-Allow-Origin header
+      callback(null, false)
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content',
+    'Accept',
+    'Content-Type',
+    'Authorization',
+  ],
   credentials: true,
 }
 
 app.use(cors(corsOptions))
 
-app.use('/api/docs', documentationRoutes)
+/**
+ * Routes
+ */
 app.use('/api/auth', authenticationRoutes)
+app.use('/api/docs', documentationRoutes)
 
+// Static files
 app.use('/data/docs', express.static(path.join(dirname, '../data/docs')))
 
-app.get('/protected-route', authentication, (request, response) => {
-  response.json({ message: 'Access granted', user: request.user })
+/**
+ * Protected Routes
+ */
+app.get('/protected-route', authentication, (req, res) => {
+  res.json({ message: 'Access granted', user: req.user })
 })
+
+/**
+ * Error Handling
+ * IMPORTANT: Error handlers must be defined last.
+ */
+app.use(jsonErrorHandler)
 
 export default app

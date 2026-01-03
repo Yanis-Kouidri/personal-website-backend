@@ -1,29 +1,36 @@
+import process from 'node:process'
+
+/**
+ * Validates that all required environment variables are present.
+ * If any are missing, the process exits immediately to prevent
+ * unstable application states.
+ */
 function validateEnvironmentVariables() {
   const requiredEnvironmentVariables = [
-    'NODE_JS_MONGODB_USERNAME',
-    'NODE_JS_MONGODB_PASSWORD',
-    'NODE_JS_MONGODB_ADDRESS',
-    'NODE_JS_MONGODB_PORT',
-    'NODE_JS_MONGODB_DATABASE',
-    'NODE_JS_FRONTEND_URL',
-    'NODE_JS_FRONTEND_PORT',
     'NODE_ENV',
-    'NODE_JS_PORT',
-    'NODE_JS_SIGN_UP_KEY',
-    'NODE_JS_JWT_SECRET',
+    'PORT',
+    'MONGODB_URI',
+    'ALLOWED_ORIGIN',
+    'SIGNUP_KEY',
+    'JWT_SECRET',
   ]
 
   const missingEnvironmentVariables = requiredEnvironmentVariables.filter(
-    (environmentVariable) => !process.env[environmentVariable],
+    (variable) => !process.env[variable],
   )
 
   if (missingEnvironmentVariables.length > 0) {
+    console.error('❌ [CRITICAL] Missing environment variables:')
+    console.error(`Please define: ${missingEnvironmentVariables.join(', ')}`)
     console.error(
-      `WARN: The following environment variables are missing or not defined: ${missingEnvironmentVariables.join(', ')}`,
+      'The application cannot start without these configurations. Exiting...',
     )
-  } else {
-    console.log('All required environment variables are defined.')
+
+    // Stop the process with failure code
+    process.exit(1)
   }
+
+  console.info('✅ All required environment variables are correctly defined.')
 }
 
 export default validateEnvironmentVariables
