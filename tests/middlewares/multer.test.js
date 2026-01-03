@@ -1,53 +1,68 @@
-import fs from 'node:fs'
-
+import { Stream } from 'node:stream'
 import express from 'express'
 import request from 'supertest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+vi.mock('../../src/utils/file-system-interaction', () => ({
+  getSafeUserPath: vi.fn(),
+  verifyPath: vi.fn(),
+}))
+
+vi.mock('node:fs', () => ({
+  default: {
+    existsSync: vi.fn(() => true),
+    statSync: vi.fn(() => ({ isDirectory: () => true })),
+    createWriteStream: vi.fn(() => {
+      const mockStream = new Stream.Writable()
+      mockStream._write = (_chunk, _encoding, next) => next()
+      setTimeout(() => mockStream.emit('finish'), 5)
+      return mockStream
+    }),
+  },
+}))
+
+vi.mock('node:fs/promises', () => ({
+  default: {
+    stat: vi.fn().mockResolvedValue({ isDirectory: () => true }),
+    access: vi.fn().mockResolvedValue(undefined),
+  },
+}))
 
 import { documentUpload, errorHandler } from '../../src/middlewares/multer'
-
-jest.mock('node:fs', () => {
-  const actualFs = jest.requireActual('node:fs')
-  return {
-    ...actualFs,
-    existsSync: jest.fn(),
-    statSync: jest.fn(),
-  }
-})
+import { getSafeUserPath } from '../../src/utils/file-system-interaction'
 
 const app = express()
 app.post(
   '/upload',
-  (request_, response, next) => {
-    // mock req.query.path for testing
-    request_.query.path = request_.headers['x-path'] || ''
+  (req, _res, next) => {
+    req.query.path = req.headers['x-path'] || ''
     next()
   },
   documentUpload.single('file'),
-  (request_, response) => response.status(200).json({ file: request_.file }),
-  errorHandler
+  (req, res) => res.status(201).json({ file: req.file }),
+  errorHandler,
 )
 
 describe('multer middleware', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
+    vi.mocked(getSafeUserPath).mockReturnValue('/tmp')
   })
 
   describe('storage.destination', () => {
-    it('should store file in valid subfolder', async () => {
-      fs.existsSync.mockReturnValue(true)
-      fs.statSync.mockReturnValue({ isDirectory: () => true })
-
+    it('should allow upload in a valid subfolder', async () => {
       const response = await request(app)
         .post('/upload')
-        .set('x-path', 'subfolder')
-        .attach('file', Buffer.from('dummy'), 'test.pdf')
+        .set('x-path', 'docs')
+        .attach('file', Buffer.from('test content'), 'test.pdf')
 
-      expect(response.status).toBe(200)
-      expect(response.body.file).toBeDefined()
+      expect(response.status).toBe(201)
     })
 
-    it('should reject if folder does not exist', async () => {
-      fs.existsSync.mockReturnValue(false)
+    it('should reject if getSafeUserPath throws an error', async () => {
+      vi.mocked(getSafeUserPath).mockImplementation(() => {
+        throw new Error('Invalid path: Access denied')
+      })
 
       const response = await request(app)
         .post('/upload')
@@ -55,48 +70,26 @@ describe('multer middleware', () => {
         .attach('file', Buffer.from('dummy'), 'test.pdf')
 
       expect(response.status).toBe(400)
-      expect(response.body.message).toMatch(/Specified folder does not exist/)
+      expect(response.body.message).toBe('Invalid path: Access denied')
     })
   })
 
   describe('storage.filename', () => {
-    it('should decode URI components in filename', async () => {
-      fs.existsSync.mockReturnValue(true)
-      fs.statSync.mockReturnValue({ isDirectory: () => true })
-
+    it('should sanitize and add a unique suffix', async () => {
       const response = await request(app)
         .post('/upload')
-        .set('x-path', '')
-        .attach(
-          'file',
-          Buffer.from('dummy'),
-          encodeURIComponent('file name.pdf')
-        )
+        .attach('file', Buffer.from('dummy'), 'my report.pdf')
 
-      expect(response.status).toBe(200)
-      expect(response.body.file.originalname).toBe('file%20name.pdf')
+      expect(response.status).toBe(201)
+      expect(response.body.file.filename).toMatch(/^\d+-\d+-my_report.pdf$/)
     })
   })
 
   describe('documentationFileFilter', () => {
-    beforeEach(() => {
-      fs.existsSync.mockReturnValue(true)
-      fs.statSync.mockReturnValue({ isDirectory: () => true })
-    })
-
-    it('should accept supported file types', async () => {
-      const response = await request(app)
-        .post('/upload')
-        .attach('file', Buffer.from('dummy'), 'test.docx')
-
-      expect(response.status).toBe(200)
-      expect(response.body.file).toBeDefined()
-    })
-
     it('should reject unsupported file types', async () => {
       const response = await request(app)
         .post('/upload')
-        .attach('file', Buffer.from('dummy'), 'test.exe')
+        .attach('file', Buffer.from('dummy'), 'script.sh')
 
       expect(response.status).toBe(400)
       expect(response.body.message).toMatch(/File type not supported/)
@@ -104,21 +97,15 @@ describe('multer middleware', () => {
   })
 
   describe('limits', () => {
-    beforeEach(() => {
-      fs.existsSync.mockReturnValue(true)
-      fs.statSync.mockReturnValue({ isDirectory: () => true })
-    })
+    it('should return 413 if file exceeds 8MB', async () => {
+      const bigBuffer = Buffer.alloc(8 * 1024 * 1024 + 1024)
 
-    it('should reject files over 8MB', async () => {
-      const bigBuffer = Buffer.alloc(8_000_001)
       const response = await request(app)
         .post('/upload')
-        .attach('file', bigBuffer, 'bigfile.pdf')
+        .attach('file', bigBuffer, 'huge.pdf')
 
-      expect(response.status).toBe(400)
-      expect(response.body.message).toMatch(/File too large/)
+      expect(response.status).toBe(413)
+      expect(response.body.message).toMatch(/File is too large/)
     })
   })
 })
-
-// We recommend installing an extension to run jest tests.

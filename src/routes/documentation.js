@@ -15,35 +15,62 @@ import {
 
 const router = express.Router()
 
+/**
+ * @route   GET /api/docs
+ * @desc    List files and folders
+ * @access  Public - No authentication required
+ */
 router.get('/', documentationController.getAllDocumentation)
 
+/**
+ * PROTECTED ROUTES
+ * All routes defined below this middleware require a valid JWT.
+ */
+router.use(authentication)
+
+/**
+ * @route   POST /api/docs
+ * @desc    Upload a single file
+ * @access  Private
+ */
 router.post(
   '/',
-  authentication,
   documentationUpload.single('file'),
-  errorHandler,
-  documentationController.addOneDocument
+  errorHandler, // Handles file size/type errors before reaching the controller
+  documentationController.addOneDocument,
 )
 
+/**
+ * @route   POST /api/docs/folder
+ * @desc    Create a new directory
+ * @access  Private
+ */
 router.post(
-  '/newfolder',
-  authentication,
+  '/folder',
   validateBody(newFolderSchema),
-  documentationController.newFolder
+  documentationController.newFolder,
 )
 
+/**
+ * @route   DELETE /api/docs
+ * @desc    Delete a file or an empty directory
+ * @access  Private
+ */
 router.delete(
   '/',
-  authentication,
   validateBody(deleteItemSchema),
-  documentationController.deleteItem
+  documentationController.deleteItem,
 )
 
+/**
+ * @route   PATCH /api/docs/rename
+ * @desc    Rename an existing item
+ * @access  Private
+ */
 router.patch(
   '/rename',
-  authentication,
   validateBody(renameItemSchema),
-  documentationController.renameItem
+  documentationController.renameItem,
 )
 
 export default router

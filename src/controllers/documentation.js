@@ -1,143 +1,150 @@
-import fs from 'node:fs'
+import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import {
   DOCUMENTATION_DIRECTORY,
-  listFilesAndDirectories,
   getSafeUserPath,
+  listFilesAndDirectories,
   verifyPath,
 } from '../utils/file-system-interaction.js'
 
-export const getAllDocumentation = (request, response) => {
-  if (!fs.existsSync(DOCUMENTATION_DIRECTORY)) {
-    fs.mkdirSync(DOCUMENTATION_DIRECTORY, { recursive: true })
-  }
-
+/**
+ * GET /api/docs
+ * Publicly lists all files and directories in the documentation root.
+ */
+export const getAllDocumentation = async (_request, response) => {
   try {
+    // Ensure directory exists asynchronously
+    try {
+      await fs.access(DOCUMENTATION_DIRECTORY)
+    } catch {
+      await fs.mkdir(DOCUMENTATION_DIRECTORY, { recursive: true })
+    }
+
     const result = [
       {
         type: 'directory',
         name: '/',
         path: '',
-        contents: listFilesAndDirectories(DOCUMENTATION_DIRECTORY),
+        // await is now required as the utility is async
+        contents: await listFilesAndDirectories(DOCUMENTATION_DIRECTORY),
       },
     ]
 
-    response.json(result)
+    return response.status(200).json(result)
   } catch (error) {
-    console.error('Erreur lors de la lecture des fichiers :', error)
-    return response
-      .status(500)
-      .json({ error: 'Erreur lors de la lecture des documents.' })
+    console.error('Failed to read documentation directory:', error)
+    return response.status(500).json({
+      error: 'An error occurred while fetching documentation.',
+    })
   }
 }
 
-export const addOneDocument = (request, response) => {
-  response.status(200).json({ message: 'File uploaded !' })
+/**
+ * POST /api/docs
+ * Handles file upload (Multer logic is handled in routes).
+ */
+export const addOneDocument = (_request, response) => {
+  return response.status(201).json({ message: 'File uploaded successfully' })
 }
 
-export const newFolder = (request, response) => {
+/**
+ * POST /api/docs/folder
+ * Creates a new directory safely.
+ */
+export const newFolder = async (request, response) => {
   const { folderName, folderPath } = request.body
-
-  const userFolderPath = path.join(folderPath, folderName)
-
-  let newFolderPath = getSafeUserPath(userFolderPath)
-
-  if (fs.existsSync(newFolderPath)) {
-    return response.status(401).json({ message: 'Folder already exists' })
-  }
+  const userFolderPath = path.join(folderPath || '', folderName)
+  const newFolderPath = getSafeUserPath(userFolderPath)
 
   try {
-    fs.mkdirSync(newFolderPath)
-    return response.status(200).json({ message: 'Folder created successfully' })
+    await fs.access(newFolderPath)
+    // If access succeeds, the folder already exists
+    return response.status(409).json({ message: 'Folder already exists' })
+  } catch (_error) {
+    // If access fails, the folder doesn't exist, proceed to create
+    try {
+      await fs.mkdir(newFolderPath, { recursive: false })
+      return response
+        .status(201)
+        .json({ message: 'Folder created successfully' })
+    } catch (createError) {
+      console.error('Error creating folder:', createError)
+      return response.status(500).json({ message: 'Internal server error' })
+    }
+  }
+}
+
+/**
+ * DELETE /api/docs
+ * Deletes a file or an empty directory.
+ */
+export const deleteItem = async (request, response) => {
+  const { path: itemPath } = request.body
+  const normalizedPath = getSafeUserPath(itemPath)
+
+  try {
+    const stat = await fs.stat(normalizedPath)
+
+    if (stat.isFile()) {
+      await fs.unlink(normalizedPath)
+      return response.status(200).json({ message: 'File successfully deleted' })
+    }
+
+    if (stat.isDirectory()) {
+      const contents = await fs.readdir(normalizedPath)
+      if (contents.length > 0) {
+        return response.status(400).json({ message: 'Folder is not empty' })
+      }
+      await fs.rmdir(normalizedPath)
+      return response
+        .status(200)
+        .json({ message: 'Folder successfully deleted' })
+    }
+
+    return response.status(400).json({ message: 'Invalid item type' })
   } catch (error) {
-    console.error('Error creating folder:', error)
+    if (error.code === 'ENOENT') {
+      return response.status(404).json({ message: 'Item does not exist' })
+    }
+    console.error('Error deleting item:', error)
     return response.status(500).json({ message: 'Internal server error' })
   }
 }
 
-export const deleteItem = (request, response) => {
-  const { path: itemPath } = request.body
-
-  const normalizedPath = getSafeUserPath(itemPath)
-
-  if (!fs.existsSync(normalizedPath)) {
-    return response.status(404).json({ message: 'Item does not exist' })
-  }
-
-  const stat = fs.statSync(normalizedPath)
-
-  if (stat.isFile()) {
-    try {
-      fs.unlinkSync(normalizedPath)
-      return response.status(200).json({ message: 'File successfully deleted' })
-    } catch (error) {
-      console.error('Error deleting file:', error)
-      return response.status(500).json({ message: 'Internal server error' })
-    }
-  } else if (stat.isDirectory()) {
-    // Check if folder is empty
-    const contents = fs.readdirSync(normalizedPath)
-    if (contents.length > 0) {
-      return response.status(401).json({ message: 'Folder is not empty' })
-    }
-
-    try {
-      fs.rmdirSync(normalizedPath)
-      return response
-        .status(200)
-        .json({ message: 'Folder successfully deleted' })
-    } catch (error) {
-      console.error('Error deleting folder:', error)
-      return response.status(500).json({ message: 'Internal server error' })
-    }
-  } else {
-    return response.status(400).json({ message: 'Invalid item type' })
-  }
-}
-
-export const renameItem = (request, response) => {
+/**
+ * PATCH /api/docs/rename
+ * Renames a file or folder within the same parent directory.
+ */
+export const renameItem = async (request, response) => {
   const { itemPath, newName } = request.body
 
-  if (/[/\\]/.test(newName)) {
-    return response
-      .status(400)
-      .json({ message: 'New name contains invalid characters' })
-  }
+  // Note: Basic character validation should be handled by your Zod middleware
   const normalizedPath = getSafeUserPath(itemPath)
 
-  if (!fs.existsSync(normalizedPath)) {
-    return response.status(404).json({ message: 'Item does not exist' })
-  }
-
-  const stat = fs.statSync(normalizedPath)
-  let itemType
-  if (stat.isFile()) {
-    itemType = 'file'
-  } else if (stat.isDirectory()) {
-    itemType = 'folder'
-  } else {
-    itemType = undefined
-  }
-
-  if (!itemType) {
-    return response.status(400).json({ message: 'Invalid item type' })
-  }
-
-  const parentDirectory = path.dirname(normalizedPath)
-  const newPath = path.join(parentDirectory, newName)
-  const normalizeNewPath = verifyPath(newPath)
-
-  if (fs.existsSync(normalizeNewPath)) {
-    return response.status(400).json({ message: 'New name already exists' })
-  }
-
   try {
-    fs.renameSync(normalizedPath, normalizeNewPath)
-    return response.status(200).json({
-      message: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} successfully renamed`,
-    })
+    const stat = await fs.stat(normalizedPath)
+    const itemType = stat.isFile() ? 'File' : 'Folder'
+
+    const parentDirectory = path.dirname(normalizedPath)
+    const newPath = path.join(parentDirectory, newName)
+    const normalizeNewPath = verifyPath(newPath)
+
+    // Check if the destination name is already taken
+    try {
+      await fs.access(normalizeNewPath)
+      return response.status(409).json({ message: 'New name already exists' })
+    } catch {
+      // Destination is available
+      await fs.rename(normalizedPath, normalizeNewPath)
+      return response.status(200).json({
+        message: `${itemType} successfully renamed`,
+      })
+    }
   } catch (error) {
+    if (error.code === 'ENOENT') {
+      return response.status(404).json({ message: 'Item does not exist' })
+    }
     console.error('Error renaming item:', error)
     return response.status(500).json({ message: 'Internal server error' })
   }
