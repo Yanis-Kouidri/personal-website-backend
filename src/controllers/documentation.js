@@ -5,7 +5,6 @@ import {
   DOCUMENTATION_DIRECTORY,
   getSafeUserPath,
   listFilesAndDirectories,
-  verifyPath,
 } from '../utils/file-system-interaction.js'
 
 /**
@@ -118,9 +117,8 @@ export const deleteItem = async (request, response) => {
  */
 export const renameItem = async (request, response) => {
   const { itemPath, newName } = request.body
-
   // Note: Basic character validation should be handled by your Zod middleware
-  const normalizedPath = getSafeUserPath(itemPath)
+  const normalizedPath = getSafeUserPath(itemPath) // OK
 
   try {
     const stat = await fs.stat(normalizedPath)
@@ -128,15 +126,14 @@ export const renameItem = async (request, response) => {
 
     const parentDirectory = path.dirname(normalizedPath)
     const newPath = path.join(parentDirectory, newName)
-    const normalizeNewPath = verifyPath(newPath)
 
     // Check if the destination name is already taken
     try {
-      await fs.access(normalizeNewPath)
+      await fs.access(newPath)
       return response.status(409).json({ message: 'New name already exists' })
     } catch {
       // Destination is available
-      await fs.rename(normalizedPath, normalizeNewPath)
+      await fs.rename(normalizedPath, newPath)
       return response.status(200).json({
         message: `${itemType} successfully renamed`,
       })
