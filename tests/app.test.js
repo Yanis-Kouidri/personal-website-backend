@@ -62,8 +62,14 @@ describe('App Integration Tests', () => {
       .send('{"invalid": json_content}') // Syntax error in JSON
 
     expect(response.status).toBe(400)
-    // Matches the json-error-handler or express default error format
-    expect(response.body).toHaveProperty('message')
+
+    // Updated to match the nested error structure { error: { message, code } }
+    expect(response.body).toHaveProperty('error')
+    expect(response.body.error).toHaveProperty(
+      'message',
+      'Invalid JSON payload',
+    )
+    expect(response.body.error).toHaveProperty('code', 'BAD_REQUEST')
   })
 
   it('should serve static files from /data/docs', async () => {

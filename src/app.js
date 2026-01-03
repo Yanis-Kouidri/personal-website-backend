@@ -7,7 +7,7 @@ import helmet from 'helmet'
 import mongoose from 'mongoose'
 
 import authentication from './middlewares/authentication.js'
-import jsonErrorHandler from './middlewares/json-error-handler.js'
+import errorHandler from './middlewares/error-handler.js'
 import authenticationRoutes from './routes/authentication.js'
 import documentationRoutes from './routes/documentation.js'
 import checkEnvironmentVariables from './utils/validate-environment-variables.js'
@@ -100,6 +100,6 @@ app.get('/protected-route', authentication, (req, res) => {
  * Error Handling
  * IMPORTANT: Error handlers must be defined last.
  */
-app.use(jsonErrorHandler)
+app.use(errorHandler)
 
 export default app
