@@ -40,7 +40,7 @@ jobs:
         run: npm run lint
 
       - name: Unit tests
-        run: npm run test
+        run: npm run test:cov
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v7
