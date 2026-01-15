@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.11",
-    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/coverage-v8": "^4.0.17",
     "retire": "^5.4.0",
     "vitest": "^4.0.17"
   }
