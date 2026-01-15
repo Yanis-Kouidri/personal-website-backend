@@ -127,9 +127,8 @@ jobs:
           if [ "${{ github.event_name }}" == "push" ]; then
             echo "✅ Image built and pushed on GHCR."
             echo "Image pushed:"
-            echo "${{ needs.prepare.outputs.image }}:latest"
-            echo "${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.version }}"
-            echo "${{ needs.prepare.outputs.image }}:sha-${{ github.sha }}"
+            echo "${{ steps.image.outputs.name }}:latest"
+            echo "${{ steps.image.outputs.name }}:${{ steps.pkg.outputs.version }}"
           else
             echo "🧪 Image built but not pushed (tests PR)"
           fi
