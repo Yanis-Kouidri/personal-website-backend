@@ -40,7 +40,7 @@ jobs:
         run: npm run lint
 
       - name: Unit tests
-        run: npm run test
+        run: npm run test:cov
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v7
@@ -68,9 +68,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-
-    # Avoid building on PRs
-    if: github.event_name == 'push'  
 
     steps:
       - name: Checkout
@@ -118,15 +115,20 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
-          push: true
+          push: ${{ github.event_name == 'push' }}
           tags: |
             ${{ steps.image.outputs.name }}:latest
             ${{ steps.image.outputs.name }}:${{ steps.pkg.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Display published tags
+      - name: Verify build status
         run: |
-          echo "Image pushed:"
-          echo "${{ steps.image.outputs.name }}:latest"
-          echo "${{ steps.image.outputs.name }}:${{ steps.pkg.outputs.version }}"
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "✅ Image built and pushed on GHCR."
+            echo "Image pushed:"
+            echo "${{ steps.image.outputs.name }}:latest"
+            echo "${{ steps.image.outputs.name }}:${{ steps.pkg.outputs.version }}"
+          else
+            echo "🧪 Image built but not pushed (tests PR)"
+          fi

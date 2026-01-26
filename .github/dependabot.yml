@@ -5,6 +5,11 @@ updates:
     schedule:
       interval: 'daily'
     target-branch: 'dev'
+    groups:
+      vitest:
+        patterns:
+          - "vitest*"
+          - "@vitest/*"
 
   - package-ecosystem: 'docker'
     directory: '/' # Location of package manifests (Dockerfile)
