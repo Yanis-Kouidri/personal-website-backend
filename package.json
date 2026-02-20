@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "packageManager": "npm@11.10.0",
+  "packageManager": "npm@11.10.1",
   "main": "src/server.js",
   "type": "module",
   "engines": {
@@ -29,7 +29,7 @@
     "test:cov": "vitest run --coverage"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.2",
+    "@biomejs/biome": "2.4.3",
     "@vitest/coverage-v8": "^4.0.18",
     "retire": "^5.4.2",
     "vitest": "^4.0.18"
