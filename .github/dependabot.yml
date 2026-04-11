@@ -4,7 +4,7 @@ updates:
     directory: '/' # Location of package manifests (package.json)
     schedule:
       interval: 'weekly'
-    target-branch: 'dev'
+    target-branch: 'main'
     groups:
       vitest:
         patterns:
@@ -15,12 +15,12 @@ updates:
     directory: '/' # Location of package manifests (Dockerfile)
     schedule:
       interval: 'weekly'
-    target-branch: 'dev'
+    target-branch: 'main'
 
 
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
       interval: 'weekly'
-    target-branch: 'dev'
+    target-branch: 'main'
 

@@ -48,7 +48,6 @@ This project uses the native Node.js 24 watch mode and env-file support to minim
 npm run dev
 ```
 
-
 ### Tests
 
 ```bash
