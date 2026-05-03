@@ -29,7 +29,7 @@
     "test:cov": "vitest run --coverage"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.11",
+    "@biomejs/biome": "2.4.14",
     "@vitest/coverage-v8": "^4.1.4",
     "retire": "^5.4.2",
     "vitest": "^4.1.3"
