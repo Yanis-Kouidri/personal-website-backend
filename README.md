@@ -1,5 +1,7 @@
 # Personal website backend
 
+> ⚠️ **This repository is no longer maintained.** It is now an archive of the backend for the old version of my personal website. The new version is available at [Yanis-Kouidri/personal-website-V2](https://github.com/Yanis-Kouidri/personal-website-V2).
+
 A modern, high-performance REST API built with Node.js 24, Express, and ESM. This project leverages Biome for lightning-fast linting/formatting and Vitest for a robust testing suite.
 
 ## 🚀 Tech Stack
